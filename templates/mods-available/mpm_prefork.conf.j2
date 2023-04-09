@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+#
+# http://httpd.apache.org/docs/2.4/mod/prefork.html
+#
+<IfModule prefork.c>
+    ServerLimit            {{ apache_prefork_server_limit }}
+    StartServers           {{ apache_prefork_start_servers }}
+    MinSpareServers        {{ apache_prefork_min_spare_servers }}
+    MaxSpareServers        {{ apache_prefork_max_spare_servers }}
+    MaxRequestWorkers      {{ apache_prefork_max_request_workers }}
+    MaxConnectionsPerChild {{ apache_prefork_max_connections_per_child }}
+</IfModule>

@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+#
+# http://httpd.apache.org/docs/2.4/mod/worker.html
+#
+<IfModule worker.c>
+    ServerLimit          {{ apache_worker_server_limit }}
+    StartServers         {{ apache_worker_start_servers }}
+    MinSpareThreads      {{ apache_worker_min_spare_threads }}
+    MaxSpareThreads      {{ apache_worker_max_spare_threads }} 
+    ThreadLimit          {{ apache_worker_thread_limit }}
+    ThreadsPerChild      {{ apache_worker_threads_per_child }}
+    MaxClients           {{ apache_worker_max_clients }}
+    MaxConnectionsPerChild  {{ apache_worker_max_connections_per_child }}
+</IfModule>

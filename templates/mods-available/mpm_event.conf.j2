@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+#
+# http://httpd.apache.org/docs/2.4/mod/event.html
+#
+<IfModule event.c>
+    ServerLimit           {{ apache_event_server_limit }}
+    StartServers          {{ apache_event_start_servers }}
+    MinSpareThreads       {{ apache_event_min_spare_threads }}
+    MaxSpareThreads       {{ apache_event_max_spare_threads }} 
+    ThreadLimit           {{ apache_event_thread_limit }}
+    ThreadsPerChild       {{ apache_event_threads_per_child }}
+    MaxClients            {{ apache_event_max_clients }} 
+    MaxConnectionsPerChild   {{ apache_event_max_connections_per_child }}
+</IfModule>
