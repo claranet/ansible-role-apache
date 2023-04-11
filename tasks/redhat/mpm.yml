@@ -1,0 +1,9 @@
+---
+- name: "Enabling on redhat based MPM {{ apache_mpm }}"
+  ansible.builtin.template:
+    src: "mods-available/redhat/00-mpm.conf.j2"
+    dest: "{{ _apache_mods_conf_directory }}/00-mpm.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart apache

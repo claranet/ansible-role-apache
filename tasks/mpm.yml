@@ -1,0 +1,23 @@
+---
+- name: "Checking current MPM"
+  ansible.builtin.command:
+    cmd: "{{ _apache_cli_command }} -V"
+  register: _apache_result_mpm_query
+  changed_when: _apache_result_mpm_query.rc != 0
+
+- name: "Set current MPM"
+  ansible.builtin.set_fact:
+    _apache_current_mpm: "{{ _apache_result_mpm_query.stdout_lines | select('search', '^Server MPM:') | first | regex_replace('^Server MPM:\\s+(\\S+)$', '\\1') }}"
+
+- name: "Adding MPM configuration file"
+  ansible.builtin.template:
+    src: "mods-available/{{ item }}.conf.j2"
+    dest: "{{ _apache_mods_conf_directory }}/{{ item }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ _apache_mpm_configs }}"
+  notify: Reload apache
+
+- name: "Include tasks for load mpm modules"
+  ansible.builtin.include_tasks: "{{ _ansible_os_family }}/mpm.yml"
