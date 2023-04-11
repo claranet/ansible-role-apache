@@ -58,7 +58,7 @@ _apache_default_mods:
   mime_magic: present
   mime: present
   negotiation: present
-  remoteip: present
+  remoteip: "{{ 'present' if apache_remoteip else 'absent' }}"
   reqtimeout: present
   request: present
   rewrite: present
