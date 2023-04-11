@@ -88,7 +88,7 @@ apache_group: ""
 
 apache_custom_options: {}
 apache_mailadmin: "noc@oxalide.com"
-apache_logs_directory: "/var/log/apache2/vhosts"
+apache_logs_directory: "/var/log/{{ _apache_package_name }}/vhosts"
 
 # logrotate
 apache_logrotate_permissions: "644"
@@ -96,7 +96,7 @@ apache_logrotate_user: "root"
 apache_logrotate_group: "root"
 apache_logrotate_retention: "90"
 apache_logrotate_frequency: "daily"
-apache_logrotate_paths: "/var/log/apache2/*.log /var/log/apache2/vhosts/*/*.log"
+apache_logrotate_paths: "/var/log/{{ _apache_package_name }}/*.log /var/log/{{ _apache_package_name }}/vhosts/*/*.log"
 apache_logrotate_delay_compress: false
 
 # default vhost
