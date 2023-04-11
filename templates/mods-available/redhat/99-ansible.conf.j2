@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+{% for module in _apache_mods %}
+    {%- if module.state == "present" +%}
+LoadModule {{ module.id }}_module modules/mod_{{ module.id }}.so
+    {%- else +%}
+#LoadModule {{ module.id }}_module modules/mod_{{ module.id }}.so
+    {%- endif -%}
+{% endfor %}

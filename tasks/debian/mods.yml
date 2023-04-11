@@ -1,0 +1,25 @@
+---
+- name: "Loading modules"
+  community.general.apache2_module:
+    state: "{{ item.state }}"
+    name: "{{ item.id }}"
+    force: true
+  loop: "{{ _apache_mods }}"
+  notify: Reload apache
+
+- name: "Loading proxy_fcgi module"
+  community.general.apache2_module:
+    state: "present"
+    name: "proxy_fcgi"
+  loop: "{{ apache_vhosts }}"
+  when:
+    - item.php_fpm is defined
+    - item.php_fpm
+  notify: Reload apache
+
+- name: "Loading remoteip module"
+  community.general.apache2_module:
+    state: "present"
+    name: "remoteip"
+  when: apache_remoteip
+  notify: Reload apache
