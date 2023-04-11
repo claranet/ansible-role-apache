@@ -1,5 +1,9 @@
 ---
 - name: Converge
   hosts: all
+  vars:
+    apache_additionnal_packages:
+      - wget
+      - curl
   roles:
     - role: claranet.apache
