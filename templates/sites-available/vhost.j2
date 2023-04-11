@@ -1,0 +1,169 @@
+# {{ ansible_managed }}
+
+{% if _apache_vhost.http is defined %}
+<VirtualHost {{ _apache_vhost.ip | default(apache_default_vhost_ip) }}:{{ _apache_vhost.port | default(apache_default_vhost_http_port) }}>
+# --- Parameters ------------------------------------------------------------
+    ServerName {{ _apache_vhost.name }}
+{% for value in _apache_vhost.aliases|default([]) %}
+    ServerAlias {{ value }}
+{% endfor %}
+
+{% if _apache_vhost.mailadmin is defined %}
+    ServerAdmin {{ _apache_vhost.mailadmin }}
+{% else %}
+    ServerAdmin {{ apache_mailadmin }}
+{% endif %}
+    DocumentRoot "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}"
+
+# --- Logs ------------------------------------------------------------------
+    ErrorLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/error.log
+    CustomLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/access.log combined
+
+# --- Directories -----------------------------------------------------------
+    <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
+        Options FollowSymLinks
+        AllowOverride all
+        Require all granted
+    </Directory>
+
+{% if _apache_vhost.letsencrypt is defined %}
+# --- Directories for letsencrypt challenge ----------------------------------
+    Alias /.well-known/acme-challenge/ "{{ apache_certbot_webroot }}/.well-known/acme-challenge/"
+    <Directory "{{ apache_certbot_webroot }}">
+        AllowOverride None
+        Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
+        Require all granted
+    </Directory>
+{% endif %}
+
+{% if _apache_vhost.auth is defined %}
+# --- Auth ------------------------------------------------------------------
+    <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
+        AuthType Basic
+        AuthBasicProvider file
+        AuthUserFile /etc/{{ _apache_package_name }}/htpasswd/{{ _apache_vhost.auth.file }}
+        AuthName "{{ _apache_vhost.auth.name }}"
+        Require valid-user
+    </Directory>
+{% endif %}
+
+{% if _apache_vhost.php_fpm is defined %}
+# --- PHP-FPM ---------------------------------------------------------------
+    <FilesMatch "\.php$">
+        SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
+    </FilesMatch>
+
+{% if _apache_vhost.php_fpm_status is defined %}
+    <FilesMatch "^ping|status$">
+        Require all denied
+        Require ip 127.0.0.1
+        Require ip 10.1.71.0/24
+        Require ip 10.254.0.0/16
+        Require ip 10.255.0.0/16
+        SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
+    </FilesMatch>
+{% endif %}
+{% endif %}
+
+{% if _apache_vhost.custom_options is defined %}
+# Custom
+{% for custom_options_name, custom_options_lines in _apache_vhost.custom_options.items() %}
+    {%- for value in custom_options_lines %}
+{{ custom_options_name }} {{ value }}
+    {% endfor %}
+{% endfor %}
+{% endif %}
+
+</VirtualHost>
+{% endif %}
+
+{% if _apache_vhost.https | default(false) %}
+<VirtualHost {{ _apache_vhost.ip | default(apache_default_vhost_ip) }}:{{ _apache_vhost.port | default(apache_default_vhost_ssl_port) }}>
+# --- Parameters ------------------------------------------------------------
+    ServerName {{ _apache_vhost.name }}
+{% for value in _apache_vhost.aliases|default([]) %}
+    ServerAlias {{ value }}
+{% endfor %}
+
+{% if _apache_vhost.mailadmin is defined %}
+    ServerAdmin {{ _apache_vhost.mailadmin }}
+{% else %}
+    ServerAdmin {{ apache_mailadmin }}
+{% endif %}
+    DocumentRoot "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}"
+
+# --- Logs ------------------------------------------------------------------
+    ErrorLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/error.log
+    CustomLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/access.log combined
+
+# --- Directories -----------------------------------------------------------
+    <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
+        Options FollowSymLinks
+        AllowOverride all
+        Require all granted
+    </Directory>
+
+{% if _apache_vhost.letsencrypt is defined %}
+# --- Directories for letsencrypt challenge ----------------------------------
+    Alias /.well-known/acme-challenge/ "{{ apache_certbot_webroot }}/.well-known/acme-challenge/"
+    <Directory "{{ apache_certbot_webroot }}">
+        AllowOverride None
+        Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
+        Require all granted
+    </Directory>
+{% endif %}
+
+# --- SSL -------------------------------------------------------------------
+    SSLEngine on
+{% if _apache_vhost.letsencrypt is defined %}
+{% if _apache_vhost.letsencrypt_cert_name is defined %}
+    SSLCertificateFile /etc/letsencrypt/live/{{ _apache_vhost.letsencrypt_cert_name }}/cert.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/{{ _apache_vhost.letsencrypt_cert_name }}/privkey.pem
+{% else %}
+    SSLCertificateFile /etc/letsencrypt/live/{{ _apache_vhost.name }}/cert.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/{{ _apache_vhost.name }}/privkey.pem
+{% endif %}
+{% else %}
+    SSLCertificateFile {{ _apache_vhost.ssl.crt }}
+    SSLCertificateKeyFile {{ _apache_vhost.ssl.key }}
+{% endif %}
+
+{% if _apache_vhost.auth is defined %}
+# --- Auth ------------------------------------------------------------------
+    <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
+        AuthType Basic
+        AuthBasicProvider file
+        AuthUserFile /etc/{{ _apache_package_name }}/htpasswd/{{ _apache_vhost.auth.file }}
+        AuthName "{{ _apache_vhost.auth.name }}"
+        Require valid-user
+    </Directory>
+{% endif %}
+
+{% if _apache_vhost.php_fpm is defined %}
+# --- PHP-FPM ---------------------------------------------------------------
+    <FilesMatch "\.php$">
+        SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
+    </FilesMatch>
+
+{% if _apache_vhost.php_fpm_status is defined %}
+    <FilesMatch "^ping|status$">
+        Require all denied
+        Require ip 127.0.0.1
+        Require ip 10.1.71.0/24
+        Require ip 10.254.0.0/16
+        Require ip 10.255.0.0/16
+        SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
+    </FilesMatch>
+{% endif %}
+{% endif %}
+
+{% if _apache_vhost.custom_options is defined %}
+# Custom
+{% for custom_options_name, custom_options_lines in _apache_vhost.custom_options.items() %}
+    {%- for value in custom_options_lines %}
+{{ custom_options_name }} {{ value }}
+    {% endfor %}
+{% endfor %}
+{% endif %}
+</VirtualHost>
+{% endif %}

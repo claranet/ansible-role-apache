@@ -1,0 +1,72 @@
+---
+- name: "Creating directory for {{ _apache_vhost.name }}"
+  ansible.builtin.file:
+    path: "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}"
+    state: directory
+    owner: "{{ apache_vhosts_user }}"
+    group: "{{ apache_vhosts_group }}"
+    mode: 0755
+  when: _apache_vhost.create_path
+
+- name: "Creating docroot for {{ _apache_vhost.name }}"
+  ansible.builtin.file:
+    path: "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}"
+    state: directory
+    owner: "{{ apache_vhosts_user }}"
+    group: "{{ apache_vhosts_group }}"
+    mode: 0755
+  when: _apache_vhost.create_docroot
+
+- name: "Creating logs directory {{ _apache_vhost.name }}"
+  ansible.builtin.file:
+    path: "{{ apache_logs_directory }}/{{ _apache_vhost.name }}"
+    state: directory
+    owner: "{{ apache_vhosts_user }}"
+    group: "{{ apache_vhosts_group }}"
+    mode: 0755
+
+- name: "Creating _apache_vhost for {{ _apache_vhost.name }}"
+  ansible.builtin.template:
+    src: "sites-available/vhost.j2"
+    dest: "{{ _apache_vhost_conf_path }}/{{ _apache_vhost.name }}.conf"
+    mode: 0644
+  notify: Reload apache
+
+- name: "Creating auth file for {{ _apache_vhost.name }}"
+  community.general.htpasswd:
+    path: "/etc/{{ _apache_package_name }}/htpasswd/{{ _apache_vhost.auth.file }}"
+    name: "{{ _apache_vhost.auth.username }}"
+    password: "{{ _apache_vhost.auth.password }}"
+    owner: "{{ _apache_user }}"
+    group: "{{ apache_vhosts_group }}"
+    mode: 0640
+  when: _apache_vhost.auth.file is defined
+  notify: Reload apache
+
+- name: "Enabling _apache_vhost {{ _apache_vhost.name }}"
+  ansible.builtin.file:
+    src: "{{ _apache_vhost_conf_path }}/{{ _apache_vhost.name }}.conf"
+    dest: "/etc/apache2/sites-enabled/{{ _apache_vhost.name }}.conf"
+    state: link
+  when:
+    - _apache_vhost.state is not defined or _apache_vhost.state == "present"
+    - _ansible_os_family == "debian"
+  notify: Reload apache
+
+- name: "Disabling _apache_vhost in {{ _ansible_os_family }}"
+  ansible.builtin.file:
+    path: "/etc/apache2/sites-enabled/{{ _apache_vhost.name }}.conf"
+    state: absent
+  when:
+    - _apache_vhost.state is defined and _apache_vhost.state == 'absent'
+    - _ansible_os_family == "debian"
+  notify: Reload apache
+
+- name: "Disabling _apache_vhost in {{ _ansible_os_family }}"
+  ansible.builtin.file:
+    path: "{{ _apache_vhost_conf_path }}/{{ _apache_vhost.name }}.conf"
+    state: absent
+  when:
+    - _apache_vhost.state is defined and _apache_vhost.state == 'absent'
+    - _ansible_os_family == "redhat"
+  notify: Reload apache
