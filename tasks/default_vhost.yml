@@ -1,0 +1,94 @@
+---
+- name: Generate default SSL certificate
+  when:
+    - apache_default_vhost_ssl
+    - apache_default_vhost_crt | bool is false
+    - apache_default_vhost_key | bool is false
+  block:
+    - name: "Install python3-pip packages for certificates"
+      ansible.builtin.package:
+        name:
+          - python3-pip
+          - python3-setuptools
+        state: present
+
+    - name: "Upgrade pip"
+      ansible.builtin.pip:
+        name: "pip"
+        state: present
+        extra_args: --upgrade
+      when: ansible_distro != 'amazon'
+
+    - name: "Install cryptography"
+      ansible.builtin.pip:
+        name:
+          - passlib
+          - cryptography
+        state: present
+
+    - name: "Creating SSL directory"
+      ansible.builtin.file:
+        dest: "{{ apache_default_vhost_ssl_certs_path }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: "Generate an OpenSSL private key"
+      community.crypto.openssl_privatekey:
+        path: "{{ apache_default_vhost_ssl_certs_path }}/default.key"
+        size: "2048"
+        type: "RSA"
+        backup: true
+
+    - name: Generate an OpenSSL Certificate Signing Request with Subject information
+      community.crypto.openssl_csr:
+        path: "{{ apache_default_vhost_ssl_certs_path }}/default.csr"
+        privatekey_path: "{{ apache_default_vhost_ssl_certs_path }}/default.key"
+        country_name: "FR"
+        common_name: "localhost"
+
+    - name: Generate a Self Signed OpenSSL certificate
+      community.crypto.x509_certificate:
+        path: "{{ apache_default_vhost_ssl_certs_path }}/default.pem"
+        privatekey_path: "{{ apache_default_vhost_ssl_certs_path }}/default.key"
+        csr_path: "{{ apache_default_vhost_ssl_certs_path }}/default.csr"
+        provider: selfsigned
+
+    - name: "Create fullchain certificates"
+      community.crypto.x509_certificate:
+        path: "{{ apache_default_vhost_ssl_certs_path }}/default.crt"
+        privatekey_path: "{{ apache_default_vhost_ssl_certs_path }}/default.key"
+        csr_path: "{{ apache_default_vhost_ssl_certs_path }}/default.csr"
+        provider: selfsigned
+
+- name: "Creating default directory"
+  ansible.builtin.file:
+    path: "{{ apache_default_vhost_path }}"
+    state: directory
+    owner: "{{ apache_vhosts_user }}"
+    group: "{{ apache_vhosts_group }}"
+    mode: 0755
+
+- name: "Creating default logs directory"
+  ansible.builtin.file:
+    path: "{{ apache_logs_directory }}/default"
+    state: directory
+    owner: "{{ apache_vhosts_user }}"
+    group: "{{ apache_vhosts_group }}"
+    mode: 0755
+
+- name: "Creating default vhost"
+  ansible.builtin.template:
+    src: "{{ apache_default_vhost_template }}"
+    dest: "{{ _apache_vhost_conf_path }}/000-default.conf"
+    mode: 0644
+  notify: Reload apache
+
+- name: "Enabling default vhost"
+  ansible.builtin.file:
+    src: "{{ _apache_vhost_conf_path }}/000-default.conf"
+    dest: "/etc/apache2/sites-enabled/000-default.conf"
+    state: link
+  notify: Reload apache
+  when: _ansible_os_family == "debian"

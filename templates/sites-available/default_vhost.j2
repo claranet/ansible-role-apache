@@ -1,0 +1,49 @@
+# {{ ansible_managed }}
+
+{% if apache_default_vhost_http %}
+<VirtualHost {{ apache_default_vhost_ip }}:{{ apache_default_vhost_http_port }}>
+# --- Parameters ------------------------------------------------------------
+    ServerAdmin {{ apache_mailadmin }}
+
+    DocumentRoot "{{ apache_default_vhost_path }}"
+
+# --- Logs ------------------------------------------------------------------
+    ErrorLog	{{ apache_logs_directory }}/default/error.log
+    CustomLog	{{ apache_logs_directory }}/default/access.log combined
+
+# --- Directories -----------------------------------------------------------
+    <Directory {{ apache_default_vhost_path }}>
+        Options none
+        AllowOverride AuthConfig
+    </Directory>
+
+</VirtualHost>
+{% endif %}
+
+{% set _apache_default_vhost_crt = '/etc/' + _apache_package_name + '/ssl/default.crt' if apache_default_vhost_crt != '' else apache_default_vhost_crt %}
+{% set _apache_default_vhost_key = '/etc/' + _apache_package_name + '/ssl/default.crt' if apache_default_vhost_crt != '' else apache_default_vhost_crt %}
+
+{% if apache_default_vhost_ssl %}
+<VirtualHost {{ apache_default_vhost_ip }}:{{ apache_default_vhost_ssl_port }}>
+# --- Parameters ------------------------------------------------------------
+    ServerAdmin {{ apache_mailadmin }}
+
+    DocumentRoot "{{ apache_default_vhost_path }}"
+
+# --- Logs ------------------------------------------------------------------
+    ErrorLog	{{ apache_logs_directory }}/default/error.log
+    CustomLog	{{ apache_logs_directory }}/default/access.log combined
+
+# --- Directories -----------------------------------------------------------
+    <Directory {{ apache_default_vhost_path }}>
+        Options none
+        AllowOverride AuthConfig
+    </Directory>
+
+# --- SSL -------------------------------------------------------------------
+    SSLEngine on
+    SSLCertificateFile /etc/{{ _apache_package_name }}/ssl/default.crt
+    SSLCertificateKeyFile /etc/{{ _apache_package_name }}/ssl/default.key
+
+</VirtualHost>
+{% endif %}
