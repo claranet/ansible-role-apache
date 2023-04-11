@@ -1,0 +1,27 @@
+---
+- name: "Adding global configuration files"
+  ansible.builtin.template:
+    src: "httpd.conf.j2"
+    dest: "/etc/{{ _apache_package_name }}/conf/httpd.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload apache
+
+- name: "Adding custom configuration files"
+  ansible.builtin.template:
+    src: "conf-available/default.conf.j2"
+    dest: "/etc/{{ _apache_package_name }}/conf.d/default.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload apache
+
+- name: "Adding port config"
+  ansible.builtin.template:
+    src: "ports.conf.j2"
+    dest: "/etc/{{ _apache_package_name }}/conf.d/ports.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload apache
