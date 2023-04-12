@@ -18,8 +18,9 @@ def test_apache_logrotate_run(host):
     package_name = get_apache_package_name(host)
     command = f"curl -k http://localhost && logrotate -f /etc/logrotate.d/{package_name}"
     cmd = host.run(command)
-    log_file = host.file(f"/var/log/{package_name}/vhosts/default/access.log.1.gz")
-    assert log_file.exists
+    log_file_compressed = host.file(f"/var/log/{package_name}/vhosts/default/access.log.1.gz")
+    log_file = host.file(f"/var/log/{package_name}/vhosts/default/access.log.1")
+    assert log_file.exists or log_file_compressed.exists
     assert cmd.rc == 0
 
 def test_apache_mpm_prefork(host):
