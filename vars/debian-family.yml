@@ -1,5 +1,5 @@
 ---
-_apache_package_name: apache2
+_apache_package_name: "apache2"
 _apache_cli_command: "apache2ctl"
 _apache_query_module: "a2query"
 _apache_mods_conf_directory: "/etc/{{ _apache_package_name }}/mods-available"
