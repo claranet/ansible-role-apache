@@ -1,0 +1,42 @@
+---
+- name: "Install php"
+  ansible.builtin.package:
+    name: php-fpm
+    state: present
+
+- name: "Install redhat"
+  when: ansible_os_family == "RedHat"
+  block:
+    - name: "Replace listen sock"
+      ansible.builtin.replace:
+        path: "/etc/php-fpm.d/www.conf"
+        regexp: "^listen = .*"
+        replace: "listen = {{ php_fpm_sock }}"
+
+    - name: "Start service"
+      ansible.builtin.command:
+        cmd: "systemctl restart php-fpm*.service"
+      register: _start_php_fpm_service
+      changed_when: _start_php_fpm_service.rc != 0
+
+- name: "Install on debian"
+  when: ansible_os_family == "Debian"
+  block:
+    - name: "Find file"
+      ansible.builtin.find:
+        paths: "/etc/"
+        patterns: "www.conf"
+        recurse: true
+      register: _php_fpm_config_file
+
+    - name: "Replace listen sock"
+      ansible.builtin.replace:
+        path: "{{ _php_fpm_config_file.files[0].path }}"
+        regexp: "^listen = .*"
+        replace: "listen = {{ php_fpm_sock }}"
+
+    - name: "Start service"
+      ansible.builtin.command:
+        cmd: "systemctl restart php*-fpm.service"
+      register: _start_php_fpm_service
+      changed_when: _start_php_fpm_service.rc != 0

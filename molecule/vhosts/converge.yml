@@ -1,0 +1,78 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
+    php_fpm_sock: "{{ '/run/php/php-fpm.sock' if ansible_os_family == 'Debian' else '/run/php-fpm/www.sock' }}"
+    apache_additionnal_packages:
+      - wget
+      - curl
+    apache_default_vhost_ssl: true
+    apache_logrotate_delay_compress: true
+    apache_vhosts:
+      - name: molecule.oxalide-test.com
+        state: present
+        http: true
+        create_docroot: true
+        docroot: current
+        auth:
+          name: molecule
+          file: molecule-file
+          username: molecule-user
+          password: molecule-pass
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
+      - name: molecule-fpm.oxalide-test.com
+        state: present
+        https: true
+        ssl:
+          crt: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/cert.pem"
+          key: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/privkey.pem"
+        php_fpm: true
+        php_fpm_status: true
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
+        create_docroot: true
+        docroot: current
+        auth:
+          name: molecule-fpm
+          file: molecule-fpm-file
+          username: molecule-fpm-user
+          password: molecule-fpm-pass
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
+      - name: certbot.retail.oxalide-test.com
+        state: present
+        http: true
+        letsencrypt: true
+        create_docroot: true
+        docroot: current
+  pre_tasks:
+    - name: "Copying var.php"
+      ansible.builtin.copy:
+        src: "files/var.php"
+        dest: "/srv/www/{{ item }}/current/"
+        owner: "root"
+        group: "root"
+        mode: 0644
+      loop:
+        - molecule.oxalide-test.com
+        - molecule-fpm.oxalide-test.com
+    - name: "Install php_fpm"
+      ansible.builtin.include_tasks: "php.yml"
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "Generate certificate"
+      ansible.builtin.include_tasks: "certificates.yml"
+      vars:
+        _apache_vhost: "{{ item }}"
+      loop: "{{ apache_vhosts }}"
+      tags:
+        - molecule-idempotence-notest
+
+  roles:
+    - role: claranet.apache

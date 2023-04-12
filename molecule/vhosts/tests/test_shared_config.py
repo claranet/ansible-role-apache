@@ -1,0 +1,1 @@
+/home/bngameni/Desktop/Claranet/apache/ansible-role-apache/molecule/shared/test_shared_config.py
