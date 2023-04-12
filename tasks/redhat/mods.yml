@@ -7,8 +7,11 @@
 
 - name: "Remove default ssl conf"
   ansible.builtin.file:
-    path: "{{ _apache_vhost_conf_path }}/00-ssl.conf"
+    path: "{{ _apache_vhost_conf_path }}/{{ item }}"
     state: absent
+  loop:
+    - 00-ssl.conf
+    - ssl.conf
 
 - name: "Search files containing useless modules configuration"
   ansible.builtin.find:
