@@ -112,8 +112,8 @@ apache_default_vhost_http_port: 80
 apache_default_vhost_ssl_port: 443
 
 # vhosts
-apache_vhosts_user: root
-apache_vhosts_group: root
+apache_vhosts_user: ""
+apache_vhosts_group: ""
 apache_vhosts_directory: "/srv/www"
 
 apache_vhosts_default:
