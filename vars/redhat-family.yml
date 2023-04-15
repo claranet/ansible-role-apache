@@ -105,4 +105,8 @@ _apache_default_mods:
 
 _apache_user: "{{ apache_user if apache_user != '' else 'apache' }}"
 _apache_group: "{{ apache_group if apache_group != '' else 'apache' }}"
+
+_apache_vhosts_user: "{{ apache_vhosts_user if apache_vhosts_user != '' else _apache_user }}"
+_apache_vhosts_group: "{{ apache_vhosts_group if apache_vhosts_group != '' else _apache_group }}"
+
 _apache_vhost_conf_path: "/etc/{{ _apache_package_name }}/conf.d"

@@ -37,6 +37,9 @@ _apache_default_mods:
 _apache_user: "{{ apache_user if apache_user != '' else 'www-data' }}"
 _apache_group: "{{ apache_group if apache_group != '' else 'www-data' }}"
 
+_apache_vhosts_user: "{{ apache_vhosts_user if apache_vhosts_user != '' else _apache_user }}"
+_apache_vhosts_group: "{{ apache_vhosts_group if apache_vhosts_group != '' else _apache_group }}"
+
 _apache_default_conf:
   charset: absent
   default: present
