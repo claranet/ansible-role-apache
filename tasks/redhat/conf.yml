@@ -3,8 +3,8 @@
   ansible.builtin.template:
     src: "httpd.conf.j2"
     dest: "/etc/{{ _apache_package_name }}/conf/httpd.conf"
-    owner: root
-    group: root
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
     mode: 0644
   notify: Reload apache
 
@@ -12,8 +12,8 @@
   ansible.builtin.template:
     src: "conf-available/default.conf.j2"
     dest: "/etc/{{ _apache_package_name }}/conf.d/default.conf"
-    owner: root
-    group: root
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
     mode: 0644
   notify: Reload apache
 
@@ -21,7 +21,7 @@
   ansible.builtin.template:
     src: "ports.conf.j2"
     dest: "/etc/{{ _apache_package_name }}/conf.d/ports.conf"
-    owner: root
-    group: root
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
     mode: 0644
   notify: Reload apache

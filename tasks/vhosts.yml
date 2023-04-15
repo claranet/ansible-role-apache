@@ -3,8 +3,8 @@
   ansible.builtin.file:
     path: "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}"
     state: directory
-    owner: "{{ apache_vhosts_user }}"
-    group: "{{ apache_vhosts_group }}"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
     mode: 0755
   when: _apache_vhost.create_path
 
@@ -12,8 +12,8 @@
   ansible.builtin.file:
     path: "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}"
     state: directory
-    owner: "{{ apache_vhosts_user }}"
-    group: "{{ apache_vhosts_group }}"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
     mode: 0755
   when: _apache_vhost.create_docroot
 
@@ -21,8 +21,8 @@
   ansible.builtin.file:
     path: "{{ apache_logs_directory }}/{{ _apache_vhost.name }}"
     state: directory
-    owner: "{{ apache_vhosts_user }}"
-    group: "{{ apache_vhosts_group }}"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
     mode: 0755
 
 - name: "Creating _apache_vhost for {{ _apache_vhost.name }}"
@@ -38,7 +38,7 @@
     name: "{{ _apache_vhost.auth.username }}"
     password: "{{ _apache_vhost.auth.password }}"
     owner: "{{ _apache_user }}"
-    group: "{{ apache_vhosts_group }}"
+    group: "{{ _apache_vhosts_group }}"
     mode: 0640
   when: _apache_vhost.auth.file is defined
   notify: Reload apache

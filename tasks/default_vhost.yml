@@ -30,9 +30,9 @@
       ansible.builtin.file:
         dest: "{{ apache_default_vhost_ssl_certs_path }}"
         state: directory
-        owner: root
-        group: root
-        mode: 0600
+        owner: "{{ _apache_vhosts_user }}"
+        group: "{{ _apache_vhosts_group }}"
+        mode: 0700
 
     - name: "Generate an OpenSSL private key"
       community.crypto.openssl_privatekey:
@@ -62,21 +62,27 @@
         csr_path: "{{ apache_default_vhost_ssl_certs_path }}/default.csr"
         provider: selfsigned
 
-- name: "Creating default directory"
+- name: "Creating default directories"
   ansible.builtin.file:
-    path: "{{ apache_default_vhost_path }}"
+    path: "{{ item }}"
     state: directory
-    owner: "{{ apache_vhosts_user }}"
-    group: "{{ apache_vhosts_group }}"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
     mode: 0755
+  loop:
+    - /var/www
+    - "{{ apache_default_vhost_path }}"
 
 - name: "Creating default logs directory"
   ansible.builtin.file:
-    path: "{{ apache_logs_directory }}/default"
+    path: "{{ item }}"
     state: directory
-    owner: "{{ apache_vhosts_user }}"
-    group: "{{ apache_vhosts_group }}"
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
     mode: 0755
+  loop:
+    - "{{ apache_logs_directory }}"
+    - "{{ apache_logs_directory }}/default"
 
 - name: "Creating default vhost"
   ansible.builtin.template:

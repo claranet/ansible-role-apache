@@ -3,8 +3,8 @@
   ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "/etc/{{ _apache_package_name }}/{{ item }}"
-    owner: root
-    group: root
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
     mode: 0644
   loop:
     - "{{ _apache_package_name }}.conf"
@@ -15,8 +15,8 @@
   ansible.builtin.template:
     src: "conf-available/default.conf.j2"
     dest: "/etc/{{ _apache_package_name }}/conf-available/default.conf"
-    owner: root
-    group: root
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
     mode: 0644
   notify: Reload apache
 
@@ -24,8 +24,8 @@
   ansible.builtin.template:
     src: "envvars.j2"
     dest: "/etc/{{ _apache_package_name }}/envvars"
-    owner: root
-    group: root
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
     mode: 0644
   notify: Restart apache
 

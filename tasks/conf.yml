@@ -4,16 +4,16 @@
     dest: "{{ apache_default_vhost_path }}/errors"
     state: directory
     force: true
-    owner: "{{ apache_vhosts_user }}"
-    group: "{{ apache_vhosts_group }}"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
     mode: 0755
 
 - name: "Adding errors HTML files"
   ansible.builtin.copy:
     src: "errors/{{ item }}"
     dest: "{{ apache_default_vhost_path }}/errors"
-    owner: root
-    group: root
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
     mode: 0644
   with_items:
     - 401.html
@@ -29,6 +29,6 @@
   ansible.builtin.template:
     src: "logrotate.conf.j2"
     dest: "/etc/logrotate.d/{{ _apache_package_name }}"
-    owner: root
-    group: root
+    owner: "{{ apache_logrotate_user }}"
+    group: "{{ apache_logrotate_group }}"
     mode: 0644
