@@ -27,17 +27,13 @@
     _apache_vhost_cert_path: "{{ _apache_vhost.ssl.crt if _apache_vhost.ssl.crt is defined else '/etc/letsencrypt/live/'+_apache_vhost.name+'/cert.pem' }}"
     _apache_vhost_key_path: "{{ _apache_vhost.ssl.key if _apache_vhost.ssl.key is defined else '/etc/letsencrypt/live/'+_apache_vhost.name+'/privkey.pem'  }}"
 
-- name: Debug
-  ansible.builtin.debug:
-    var: _apache_vhost_key_path
-
 - name: "Creating SSL directory"
   ansible.builtin.file:
-    dest: "etc/letsencrypt/live/{{ _apache_vhost.name }}"
+    dest: "/etc/letsencrypt/live/{{ _apache_vhost.name }}"
     state: directory
-    owner: root
-    group: root
-    mode: 0600
+    owner: "root"
+    group: "root"
+    mode: 0754
 
 - name: "Generate an OpenSSL private key"
   community.crypto.openssl_privatekey:

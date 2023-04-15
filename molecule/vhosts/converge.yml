@@ -51,6 +51,17 @@
         create_docroot: true
         docroot: current
   pre_tasks:
+    - name: "Create folders"
+      ansible.builtin.file:
+        path: "/srv/www/{{ item }}/current"
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: 0755
+      loop:
+        - molecule.oxalide-test.com
+        - molecule-fpm.oxalide-test.com
+
     - name: "Copying var.php"
       ansible.builtin.copy:
         src: "files/var.php"
@@ -61,18 +72,45 @@
       loop:
         - molecule.oxalide-test.com
         - molecule-fpm.oxalide-test.com
+
+    - name: "Copying up.php"
+      ansible.builtin.copy:
+        src: "files/up.php"
+        dest: "/srv/www/{{ item }}/current/"
+        owner: "root"
+        group: "root"
+        mode: 0644
+      loop:
+        - molecule.oxalide-test.com
+        - molecule-fpm.oxalide-test.com
+
+    - name: "Create letsencrypt challenge directory"
+      ansible.builtin.file:
+        path: /var/www/letsencrypt/.well-known/acme-challenge/
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: '0755'
+
+    - name: "Copy letsencrypt challenges files"
+      ansible.builtin.copy:
+        src: files/challenge.html
+        dest: /var/www/letsencrypt/.well-known/acme-challenge/
+        owner: "root"
+        group: "root"
+        mode: '0644'
+
     - name: "Install php_fpm"
       ansible.builtin.include_tasks: "php.yml"
-      tags:
-        - molecule-idempotence-notest
 
     - name: "Generate certificate"
       ansible.builtin.include_tasks: "certificates.yml"
       vars:
         _apache_vhost: "{{ item }}"
       loop: "{{ apache_vhosts }}"
-      tags:
-        - molecule-idempotence-notest
+
+  tags:
+    - molecule-idempotence-notest
 
   roles:
     - role: claranet.apache
