@@ -46,7 +46,3 @@
     label: "Config virtual host {{ item.name }}"
   tags: apache_vhosts
   when: apache_vhosts | length > 0
-
-# - name: "Include tasks for letsencrypt"
-#   ansible.builtin.include_tasks: letsencrypt.yml
-#   tags: apache_letsencrypt
