@@ -1,8 +1,0 @@
----
-- name: "Enabling on debian based MPM {{ apache_mpm }}"
-  community.general.apache2_module:
-    state: "{{ item.state }}"
-    name: "{{ item.name }}"
-    ignore_configcheck: true
-  loop: "{{ _apache_mpm_states | sort(attribute='state') }}"
-  notify: Restart apache
