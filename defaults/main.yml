@@ -2,7 +2,7 @@
 # defaults file for role
 
 # packages
-apache_additionnal_packages: {}
+apache_additionnal_packages: []
 
 # service
 apache_service_enabled: true
@@ -115,12 +115,6 @@ apache_default_vhost_ssl_port: 443
 apache_vhosts_user: ""
 apache_vhosts_group: ""
 apache_vhosts_directory: "/srv/www"
-
-apache_vhosts_default:
-  docroot: current
-  create_path: true
-  create_docroot: false
-  ssl: false
 
 apache_vhosts: []
 
