@@ -61,6 +61,8 @@
       loop:
         - molecule.oxalide-test.com
         - molecule-fpm.oxalide-test.com
+      tags:
+        - molecule-idempotence-notest
 
     - name: "Copying var.php"
       ansible.builtin.copy:
@@ -72,6 +74,8 @@
       loop:
         - molecule.oxalide-test.com
         - molecule-fpm.oxalide-test.com
+      tags:
+        - molecule-idempotence-notest
 
     - name: "Copying up.php"
       ansible.builtin.copy:
@@ -83,6 +87,8 @@
       loop:
         - molecule.oxalide-test.com
         - molecule-fpm.oxalide-test.com
+      tags:
+        - molecule-idempotence-notest
 
     - name: "Create letsencrypt challenge directory"
       ansible.builtin.file:
@@ -91,6 +97,8 @@
         owner: "root"
         group: "root"
         mode: '0755'
+      tags:
+        - molecule-idempotence-notest
 
     - name: "Copy letsencrypt challenges files"
       ansible.builtin.copy:
@@ -99,18 +107,21 @@
         owner: "root"
         group: "root"
         mode: '0644'
+      tags:
+        - molecule-idempotence-notest
 
     - name: "Install php_fpm"
       ansible.builtin.include_tasks: "php.yml"
+      tags:
+        - molecule-idempotence-notest
 
     - name: "Generate certificate"
       ansible.builtin.include_tasks: "certificates.yml"
       vars:
         _apache_vhost: "{{ item }}"
       loop: "{{ apache_vhosts }}"
-
-  tags:
-    - molecule-idempotence-notest
+      tags:
+        - molecule-idempotence-notest
 
   roles:
     - role: claranet.apache
