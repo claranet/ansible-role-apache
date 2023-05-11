@@ -96,7 +96,9 @@ apache_logrotate_user: "root"
 apache_logrotate_group: "root"
 apache_logrotate_retention: "90"
 apache_logrotate_frequency: "daily"
-apache_logrotate_paths: "/var/log/{{ _apache_package_name }}/*.log /var/log/{{ _apache_package_name }}/vhosts/*/*.log"
+apache_logrotate_paths:
+  - "/var/log/{{ _apache_package_name }}/*.log"
+  - "/var/log/{{ _apache_package_name }}/vhosts/*/*.log"
 apache_logrotate_delay_compress: false
 
 # default vhost
@@ -117,6 +119,13 @@ apache_vhosts_group: ""
 apache_vhosts_directory: "/srv/www"
 
 apache_vhosts: []
+
+# config for virtual hosts
+apache_vhosts_default:
+  docroot: current
+  create_path: true
+  create_docroot: false
+  ssl: false
 
 # Letsencrypt
 apache_certbot_webroot: "/var/www/letsencrypt"

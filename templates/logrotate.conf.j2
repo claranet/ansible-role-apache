@@ -3,7 +3,7 @@
 {% set status_command = 'apache2 status' if _ansible_os_family == 'debian' else 'httpd -t -D status' %}
 {% set reload_command = 'apache2 reload' if _ansible_os_family == 'debian' else 'httpd -k graceful' %}
 
-{{ apache_logrotate_paths }} {
+{{ apache_logrotate_paths | join(' ') }} {
         {{ apache_logrotate_frequency }}
         missingok
         rotate {{ apache_logrotate_retention }}
