@@ -1,10 +1,4 @@
 ---
-- name: Remove curl minimal for {{ ansible_distro }}
-  ansible.builtin.package:
-    name: "curl-minimal"
-    state: absent
-  when: ansible_distro == 'amazon'
-
 - name: "Installing packages for {{ _apache_package_name }}"
   ansible.builtin.package:
     name: "{{ _apache_packages }}"

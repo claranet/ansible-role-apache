@@ -10,20 +10,7 @@
         name:
           - python3-pip
           - python3-setuptools
-        state: present
-
-    - name: "Upgrade pip"
-      ansible.builtin.pip:
-        name: "pip"
-        state: present
-        extra_args: --upgrade
-      when: ansible_distro != 'amazon'
-
-    - name: "Install cryptography"
-      ansible.builtin.pip:
-        name:
-          - passlib
-          - cryptography
+          - python3-cryptography
         state: present
 
     - name: "Creating SSL directory"
