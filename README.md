@@ -86,6 +86,7 @@ apache_vhosts_group                         | **""**                            
 apache_vhosts_directory                     | **"/srv/www"**                             | Directory for store virtual hosts files
 apache_vhosts                               | **[]**                                     | Default user owner for default vhost
 apache_vhosts_user                          | **""**                                     | Default user owner for default vhost
+apache_vhosts_default                       | [See here](/defaults/main.yml#L124)        | Default vhost default options 
 apache_vhosts                               | **[]**                                     | List of virtual hosts to config. [Example of configuration here](/molecule/vhosts/converge.yml#L12)
 apache_certbot_webroot                      | **"/var/www/letsencrypt"**                 | Path to certbot letsencrypt certificates
 
@@ -159,6 +160,10 @@ N/A
 ```
 
 ## :closed_lock_with_key: [Hardening](HARDENING.md)
+
+* SSL packages for enable apache ssl module are installed
+* Set apache servers token config to **Prod** value
+* Disabling apache server signature and apache trace token
 
 ## :heart_eyes_cat: [Contributing](CONTRIBUTING.md)
 
