@@ -1,9 +1,7 @@
 ---
 dependency:
   name: shell
-  options:
-    command: |
-      pip install requests
+  command: pip install requests
 
 driver:
   name: docker
