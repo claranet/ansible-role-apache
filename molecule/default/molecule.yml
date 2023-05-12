@@ -1,6 +1,9 @@
 ---
 dependency:
-  name: galaxy
+  name: shell
+  options:
+    command: |
+      pip install requests
 
 driver:
   name: docker
