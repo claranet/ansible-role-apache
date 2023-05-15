@@ -33,6 +33,9 @@ _apache_default_mods:
   headers: present
   rewrite: present
   ssl: present
+  proxy: present
+  proxy_http: present
+  lbmethod_bytraffic: present
 
 _apache_user: "{{ apache_user if apache_user != '' else 'www-data' }}"
 _apache_group: "{{ apache_group if apache_group != '' else 'www-data' }}"
