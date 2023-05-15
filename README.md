@@ -119,42 +119,42 @@ N/A
 ---
 - hosts: all
   vars:
-    - apache_default_vhost_ssl: true
-    - apache_vhosts:
-        - name: molecule.oxalide-test.com
-          state: present
-          http: true
-          create_docroot: true
-          docroot: current
-          auth:
-            name: molecule
-            file: molecule-file
-            username: molecule-user
-            password: molecule-pass
-          custom_options:
-            SetEnv:
-              - "MYVAR myvalue"
-              - "MY2VAR myvalue"
-        - name: molecule-fpm.oxalide-test.com
-          state: present
-          https: true
-          ssl:
-            crt: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/cert.pem"
-            key: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/privkey.pem"
-          php_fpm: true
-          php_fpm_status: true
-          php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
-          create_docroot: true
-          docroot: current
-          auth:
-            name: molecule-fpm
-            file: molecule-fpm-file
-            username: molecule-fpm-user
-            password: molecule-fpm-pass
-          custom_options:
-            SetEnv:
-              - "MYVAR myvalue"
-              - "MY2VAR myvalue"
+    apache_default_vhost_ssl: true
+    apache_vhosts:
+      - name: molecule.oxalide-test.com
+        state: present
+        http: true
+        create_docroot: true
+        docroot: current
+        auth:
+          name: molecule
+          file: molecule-file
+          username: molecule-user
+          password: molecule-pass
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
+      - name: molecule-fpm.oxalide-test.com
+        state: present
+        https: true
+        ssl:
+          crt: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/cert.pem"
+          key: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/privkey.pem"
+        php_fpm: true
+        php_fpm_status: true
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
+        create_docroot: true
+        docroot: current
+        auth:
+          name: molecule-fpm
+          file: molecule-fpm-file
+          username: molecule-fpm-user
+          password: molecule-fpm-pass
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
   roles:
     - claranet.apache
 ```
