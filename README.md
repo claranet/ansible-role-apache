@@ -155,6 +155,19 @@ N/A
           SetEnv:
             - "MYVAR myvalue"
             - "MY2VAR myvalue"
+      - name: mon.oxalide.org
+        aliases:
+          - oxalide.org
+        mailadmin: noccy@oxalide.com
+        state: absent
+        http: true
+        create_docroot: true
+        docroot: current
+        proxy:
+          path: /
+          url:
+            - http://localhost:5050/
+          proxy_set: "lbmethod=bytraffic"
   roles:
     - claranet.apache
 ```
