@@ -10,7 +10,7 @@
     apache_default_vhost_ssl: true
     apache_logrotate_delay_compress: true
     apache_vhosts:
-      - name: molecule.oxalide-test.com
+      - name: molecule.example.com
         state: present
         http: true
         create_docroot: true
@@ -24,12 +24,12 @@
           SetEnv:
             - "MYVAR myvalue"
             - "MY2VAR myvalue"
-      - name: molecule-fpm.oxalide-test.com
+      - name: molecule-fpm.example.com
         state: present
         https: true
         ssl:
-          crt: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/cert.pem"
-          key: "/etc/letsencrypt/live/molecule-fpm.oxalide-test.com/privkey.pem"
+          crt: "/etc/letsencrypt/live/molecule-fpm.example.com/cert.pem"
+          key: "/etc/letsencrypt/live/molecule-fpm.example.com/privkey.pem"
         php_fpm: true
         php_fpm_status: true
         php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
@@ -44,7 +44,7 @@
           SetEnv:
             - "MYVAR myvalue"
             - "MY2VAR myvalue"
-      - name: certbot.retail.oxalide-test.com
+      - name: certbot.retail.example.com
         state: present
         http: true
         letsencrypt: true
@@ -59,8 +59,8 @@
         group: "root"
         mode: 0755
       loop:
-        - molecule.oxalide-test.com
-        - molecule-fpm.oxalide-test.com
+        - molecule.example.com
+        - molecule-fpm.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -72,8 +72,8 @@
         group: "root"
         mode: 0644
       loop:
-        - molecule.oxalide-test.com
-        - molecule-fpm.oxalide-test.com
+        - molecule.example.com
+        - molecule-fpm.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -85,8 +85,8 @@
         group: "root"
         mode: 0644
       loop:
-        - molecule.oxalide-test.com
-        - molecule-fpm.oxalide-test.com
+        - molecule.example.com
+        - molecule-fpm.example.com
       tags:
         - molecule-idempotence-notest
 

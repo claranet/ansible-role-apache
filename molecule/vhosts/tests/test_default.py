@@ -16,7 +16,7 @@ def test_apache_mod_status(host):
 def test_apache_vhost_ssl_auth_fpm(host):
     request = requests.get(
         url=f"https://{get_ip_address(host)}/var.php",
-        headers={'Host': 'molecule-fpm.oxalide-test.com'},
+        headers={'Host': 'molecule-fpm.example.com'},
         auth=HTTPBasicAuth('molecule-fpm-user', 'molecule-fpm-pass'),
         verify=False
     )
@@ -29,7 +29,7 @@ def test_apache_vhost_ssl_auth_fpm(host):
 def test_apache_letsencrypt_challenge(host):
     request = requests.get(
         url=f"http://{get_ip_address(host)}/.well-known/acme-challenge/challenge.html",
-        headers={'Host': 'certbot.retail.oxalide-test.com'},
+        headers={'Host': 'certbot.retail.example.com'},
         auth=HTTPBasicAuth('molecule-fpm-user', 'molecule-fpm-pass'),
     )
 
