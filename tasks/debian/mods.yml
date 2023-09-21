@@ -12,6 +12,8 @@
     state: "present"
     name: "proxy_fcgi"
   loop: "{{ apache_vhosts }}"
+  loop_control:
+    label: "{{ item.name }}"
   when:
     - item.php_fpm is defined
     - item.php_fpm
