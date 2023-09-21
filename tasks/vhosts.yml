@@ -1,4 +1,15 @@
 ---
+- name: "Include tasks for create certifates when user pass content instead path"
+  ansible.builtin.include_tasks: create_certs_from_content.yml
+  vars:
+    _apache_certificate: "{{ _apache_vhost.ssl.crt if _apache_vhost.ssl.crt is defined else '' }}"
+    _apache_key: "{{ _apache_vhost.ssl.key if _apache_vhost.ssl.key is defined else '' }}"
+    _apache_certificate_file_name: "{{ _apache_vhost.name }}"
+    _apache_certificate_path: "{{ apache_default_vhost_ssl_certs_path }}"
+  when:
+    - _apache_vhost.https is defined
+    - _apache_vhost.https
+
 - name: "Creating directory for {{ _apache_vhost.name }}"
   ansible.builtin.file:
     path: "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}"

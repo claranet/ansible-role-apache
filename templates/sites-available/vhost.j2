@@ -134,7 +134,7 @@
 
 # --- SSL -------------------------------------------------------------------
     SSLEngine on
-{% if _apache_vhost.letsencrypt is defined %}
+{% if _apache_vhost.letsencrypt is defined or _apache_vhost.https %}
 {% if _apache_vhost.letsencrypt_cert_name is defined %}
     SSLCertificateFile /etc/letsencrypt/live/{{ _apache_vhost.letsencrypt_cert_name }}/cert.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/{{ _apache_vhost.letsencrypt_cert_name }}/privkey.pem
@@ -143,8 +143,12 @@
     SSLCertificateKeyFile /etc/letsencrypt/live/{{ _apache_vhost.name }}/privkey.pem
 {% endif %}
 {% else %}
-    SSLCertificateFile {{ _apache_vhost.ssl.crt }}
-    SSLCertificateKeyFile {{ _apache_vhost.ssl.key }}
+    {# #}
+    {% set _apache_vhost_certificate_is_not_path = _apache_vhost.ssl.crt | regex_search('^.*BEGIN CERTIFICATE.*', multiline=true) %}
+    {% set _apache_vhost_key_is_not_path = _apache_vhost.ssl.key | regex_search('^.*BEGIN( RSA)? PRIVATE KEY.*', multiline=true) %}
+
+    SSLCertificateFile {{ apache_default_vhost_ssl_certs_path + '/' + _apache_certificate_file_name + '.crt' if _apache_vhost_certificate_is_not_path else _apache_vhost.ssl.crt }}
+    SSLCertificateKeyFile {{ apache_default_vhost_ssl_certs_path + '/' + _apache_certificate_file_name + '.key' if _apache_vhost_key_is_not_path else _apache_vhost.ssl.key }}
 {% endif %}
 
 {% if _apache_vhost.auth is defined %}

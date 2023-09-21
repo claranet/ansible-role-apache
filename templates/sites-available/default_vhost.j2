@@ -20,8 +20,6 @@
 </VirtualHost>
 {% endif %}
 
-{% set _apache_default_vhost_crt = '/etc/' + _apache_package_name + '/ssl/default.crt' if apache_default_vhost_crt != '' else apache_default_vhost_crt %}
-{% set _apache_default_vhost_key = '/etc/' + _apache_package_name + '/ssl/default.crt' if apache_default_vhost_crt != '' else apache_default_vhost_crt %}
 
 {% if apache_default_vhost_ssl %}
 <VirtualHost {{ apache_default_vhost_ip }}:{{ apache_default_vhost_ssl_port }}>
@@ -41,9 +39,11 @@
     </Directory>
 
 # --- SSL -------------------------------------------------------------------
-    SSLEngine on
-    SSLCertificateFile /etc/{{ _apache_package_name }}/ssl/default.crt
-    SSLCertificateKeyFile /etc/{{ _apache_package_name }}/ssl/default.key
+    {% set _apache_default_vhost_certificate_is_not_path = _apache_default_vhost_crt | regex_search('^.*BEGIN CERTIFICATE.*', multiline=true) %}
+    {% set _apache_default_vhost_key_is_not_path = _apache_default_vhost_key | regex_search('^.*BEGIN( RSA)? PRIVATE KEY.*', multiline=true) %}
 
+    SSLEngine on
+    SSLCertificateFile {{ apache_default_vhost_ssl_certs_path + '/default.crt' if _apache_default_vhost_certificate_is_not_path else _apache_default_vhost_crt }}
+    SSLCertificateKeyFile {{ apache_default_vhost_ssl_certs_path + '/default.key' if _apache_default_vhost_key_is_not_path else _apache_default_vhost_key }}
 </VirtualHost>
 {% endif %}

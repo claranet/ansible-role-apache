@@ -1,9 +1,20 @@
 ---
+- name: "Include tasks for create certifates when user pass content instead path"
+  ansible.builtin.include_tasks: create_certs_from_content.yml
+  vars:
+    _apache_certificate: "{{ _apache_default_vhost_crt }}"
+    _apache_key: "{{ _apache_default_vhost_key }}"
+    _apache_certificate_file_name: "default"
+    _apache_certificate_path: "{{ apache_default_vhost_ssl_certs_path }}"
+  when: apache_default_vhost_ssl
+
 - name: Generate default SSL certificate
   when:
     - apache_default_vhost_ssl
     - apache_default_vhost_crt | bool is false
     - apache_default_vhost_key | bool is false
+    - not _apache_certificate_is_not_path
+    - not _apache_key_is_not_path
   block:
     - name: "Install python3-pip packages for certificates"
       ansible.builtin.package:
@@ -12,14 +23,6 @@
           - python3-setuptools
           - python3-cryptography
         state: present
-
-    - name: "Creating SSL directory"
-      ansible.builtin.file:
-        dest: "{{ apache_default_vhost_ssl_certs_path }}"
-        state: directory
-        owner: "{{ _apache_vhosts_user }}"
-        group: "{{ _apache_vhosts_group }}"
-        mode: 0700
 
     - name: "Generate an OpenSSL private key"
       community.crypto.openssl_privatekey:
