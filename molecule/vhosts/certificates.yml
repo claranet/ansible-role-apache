@@ -10,7 +10,7 @@
   ansible.builtin.pip:
     name: "pip"
     state: present
-    extra_args: --upgrade
+    extra_args: "--upgrade {{ '--break-system-packages' if ansible_os_family == 'Debian' else '' }}"
   vars:
     ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
   when: ansible_distro != 'amazon'
@@ -20,6 +20,7 @@
     name:
       - passlib
       - cryptography
+    extra_args: "{{ '--break-system-packages' if ansible_os_family == 'Debian' else '' }}"
     state: present
 
 - name: "Define path to certificate"
