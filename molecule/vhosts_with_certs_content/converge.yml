@@ -1,0 +1,134 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
+    php_fpm_sock: "{{ '/run/php/php-fpm.sock' if ansible_os_family == 'Debian' else '/run/php-fpm/www.sock' }}"
+    apache_additionnal_packages:
+      - wget
+      - curl
+    apache_default_vhost_ssl: true
+    apache_logrotate_delay_compress: true
+
+    apache_default_vhost_crt: "{{ lookup('ansible.builtin.file', 'files/ssl/default.crt') }}"
+    apache_default_vhost_key: "{{ lookup('ansible.builtin.file', 'files/ssl/default.key') }}"
+
+    apache_vhosts:
+      - name: molecule.example.com
+        state: present
+        http: true
+        create_docroot: true
+        docroot: current
+        auth:
+          name: molecule
+          file: molecule-file
+          username: molecule-user
+          password: molecule-pass
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
+      - name: molecule-fpm.example.com
+        state: present
+        https: true
+        ssl:
+          crt: "{{ lookup('ansible.builtin.file', 'files/ssl/default.crt') }}"
+          key: "{{ lookup('ansible.builtin.file', 'files/ssl/default.key') }}"
+        php_fpm: true
+        php_fpm_status: true
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
+        create_docroot: true
+        docroot: current
+        auth:
+          name: molecule-fpm
+          file: molecule-fpm-file
+          username: molecule-fpm-user
+          password: molecule-fpm-pass
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
+      - name: certbot.retail.example.com
+        state: present
+        http: true
+        letsencrypt: true
+        create_docroot: true
+        docroot: current
+
+  pre_tasks:
+    - name: "Create folders"
+      ansible.builtin.file:
+        path: "/srv/www/{{ item }}/current"
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: 0755
+      loop:
+        - molecule.example.com
+        - molecule-fpm.example.com
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "Copying var.php"
+      ansible.builtin.copy:
+        src: "files/var.php"
+        dest: "/srv/www/{{ item }}/current/"
+        owner: "root"
+        group: "root"
+        mode: 0644
+      loop:
+        - molecule.example.com
+        - molecule-fpm.example.com
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "Copying up.php"
+      ansible.builtin.copy:
+        src: "files/up.php"
+        dest: "/srv/www/{{ item }}/current/"
+        owner: "root"
+        group: "root"
+        mode: 0644
+      loop:
+        - molecule.example.com
+        - molecule-fpm.example.com
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "Create letsencrypt challenge directory"
+      ansible.builtin.file:
+        path: /var/www/letsencrypt/.well-known/acme-challenge/
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: '0755'
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "Copy letsencrypt challenges files"
+      ansible.builtin.copy:
+        src: files/challenge.html
+        dest: /var/www/letsencrypt/.well-known/acme-challenge/
+        owner: "root"
+        group: "root"
+        mode: '0644'
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "Install php_fpm"
+      ansible.builtin.include_tasks: "php.yml"
+      tags:
+        - molecule-idempotence-notest
+
+    - name: "Generate certificate"
+      ansible.builtin.include_tasks: "certificates.yml"
+      vars:
+        _apache_vhost: "{{ item }}"
+      loop: "{{ apache_vhosts }}"
+      loop_control:
+        label: "Certificates for {{ item.name }}"
+      tags:
+        - molecule-idempotence-notest
+
+  roles:
+    - role: claranet.apache

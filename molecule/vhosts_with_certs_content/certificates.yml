@@ -1,0 +1,65 @@
+---
+- name: "Install python3-pip packages for certificates"
+  ansible.builtin.package:
+    name:
+      - python3-pip
+      - python3-setuptools
+    state: present
+
+- name: "Upgrade pip"
+  ansible.builtin.pip:
+    name: "pip"
+    state: present
+    extra_args: "--upgrade {{ '--break-system-packages' if ansible_os_family == 'Debian' else '' }}"
+  vars:
+    ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
+  when: ansible_distro != 'amazon'
+
+- name: "Install cryptography"
+  ansible.builtin.pip:
+    name:
+      - passlib
+      - cryptography
+    extra_args: "{{ '--break-system-packages' if ansible_os_family == 'Debian' else '' }}"
+    state: present
+
+- name: "Define path to certificate"
+  ansible.builtin.set_fact:
+    _apache_vhost_cert_path: "{{ '/etc/letsencrypt/live/'+_apache_vhost.name+'/cert.pem' }}"
+    _apache_vhost_key_path: "{{ '/etc/letsencrypt/live/'+_apache_vhost.name+'/privkey.pem'  }}"
+
+- name: "Creating SSL directory"
+  ansible.builtin.file:
+    dest: "/etc/letsencrypt/live/{{ _apache_vhost.name }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0754
+
+- name: "Generate an OpenSSL private key"
+  community.crypto.openssl_privatekey:
+    path: "{{ _apache_vhost_key_path }}"
+    size: "2048"
+    type: "RSA"
+    backup: true
+
+- name: Generate an OpenSSL Certificate Signing Request with Subject information
+  community.crypto.openssl_csr:
+    path: "/etc/letsencrypt/live/default.csr"
+    privatekey_path: "{{ _apache_vhost_key_path }}"
+    country_name: "FR"
+    common_name: "{{ _apache_vhost.name }}"
+
+- name: Generate a Self Signed OpenSSL certificate
+  community.crypto.x509_certificate:
+    path: "{{ _apache_vhost_cert_path }}"
+    privatekey_path: "{{ _apache_vhost_key_path }}"
+    csr_path: "/etc/letsencrypt/live/default.csr"
+    provider: selfsigned
+
+- name: "Create fullchain certificates"
+  community.crypto.x509_certificate:
+    path: "{{ _apache_vhost_cert_path }}"
+    privatekey_path: "{{ _apache_vhost_key_path }}"
+    csr_path: "/etc/letsencrypt/live/default.csr"
+    provider: selfsigned
