@@ -21,7 +21,7 @@
   ansible.builtin.pip:
     name: "pip"
     state: present
-    extra_args: "--upgrade {{ '--break-system-packages' if ansible_os_family == 'Debian' else '' }}"
+    extra_args: "--upgrade {{ '--break-system-packages' if ansible_distribution == 'Debian' and ansible_distribution_major_version == '12' else '' }}"
   vars:
     _ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
   when: _ansible_distro != 'amazon'
@@ -31,7 +31,7 @@
     name:
       - passlib
       - cryptography
-    extra_args: "{{ '--break-system-packages' if _ansible_os_family == 'debian' else '' }}"
+    extra_args: "{{ '--break-system-packages' if ansible_distribution == 'Debian' and ansible_distribution_major_version == '12' else '' }}"
     state: present
 
 - name: "Checking service state of {{ _apache_package_name }}"
