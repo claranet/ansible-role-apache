@@ -1,0 +1,24 @@
+---
+- name: "Adding modules configuration files"
+  ansible.builtin.template:
+    src: "mods-available/{{ item }}.j2"
+    dest: "{{ _apache_mods_conf_directory }}/{{ item }}"
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
+    mode: 0644
+  loop:
+    - deflate.conf
+    - ssl.conf
+    - status.conf
+
+- name: "Adding remoteip configuration file"
+  ansible.builtin.template:
+    src: "mods-available/remoteip.conf.j2"
+    dest: "{{ _apache_mods_conf_directory }}/remoteip.conf"
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
+    mode: 0644
+  when: apache_remoteip
+
+- name: "Include tasks for continue modules configuration in {{ _ansible_os_family }}"
+  ansible.builtin.include_tasks: "{{ _ansible_os_family }}/mods.yml"

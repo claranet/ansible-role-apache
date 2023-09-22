@@ -1,0 +1,34 @@
+---
+- name: "Creating errors logs directories"
+  ansible.builtin.file:
+    dest: "{{ apache_default_vhost_path }}/errors"
+    state: directory
+    force: true
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
+    mode: 0755
+
+- name: "Adding errors HTML files"
+  ansible.builtin.copy:
+    src: "errors/{{ item }}"
+    dest: "{{ apache_default_vhost_path }}/errors"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
+    mode: 0644
+  with_items:
+    - 401.html
+    - 403.html
+    - 404.html
+    - 500.html
+    - 503.html
+
+- name: "Include tasks for apply config in {{ _ansible_os_family }}"
+  ansible.builtin.include_tasks: "{{ _ansible_os_family }}/conf.yml"
+
+- name: "Adding logrotate configuration files"
+  ansible.builtin.template:
+    src: "logrotate.conf.j2"
+    dest: "/etc/logrotate.d/{{ _apache_package_name }}"
+    owner: "{{ apache_logrotate_user }}"
+    group: "{{ apache_logrotate_group }}"
+    mode: 0644

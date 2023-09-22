@@ -1,0 +1,71 @@
+# {{ ansible_managed }}
+
+ServerName localhost
+
+# Ports
+{% for port in apache_ports %}
+Listen {{ port }}
+{% endfor %}
+
+<IfModule ssl_module>
+{% for port in apache_ssl_ports %}
+    Listen {{ port }}
+{% endfor %}
+</IfModule>
+
+<IfModule mod_gnutls.c>
+{% for port in apache_gnutls_ports %}
+    Listen {{ port }}
+{% endfor %}
+</IfModule>
+
+# Performance
+HostnameLookups {{ apache_hostname_lookups }}
+ListenBacklog {{ apache_listen_backlog }}
+
+# Timeout & KeepAlive
+KeepAlive {{ apache_keepalive }}
+KeepAliveTimeout {{ apache_keepalive_timeout}}
+MaxKeepAliveRequests {{ apache_max_keepalive_requests }}
+Timeout {{ apache_timeout }}
+
+# Security
+ServerSignature {{ apache_server_signature }}
+ServerTokens {{ apache_server_tokens }}
+TraceEnable {{ apache_trace_enable }}
+
+# Logs
+{% if apache_remoteip %}
+LogFormat "%a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" PID %{pid}P TimeTaken %D" combined
+LogFormat "%a %l %u %t \"%r\" %>s %b" common
+{% else %}
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" PID %{pid}P TimeTaken %D" combined
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+{% endif %}
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+
+# Custom
+{% for key, val in apache_custom_options.items() %}
+{{ key }} {{ val }}
+{% endfor %}
+
+<Directory {{ apache_vhosts_directory }}>
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+</Directory>
+
+# Errors
+<Directory {{ apache_default_vhost_path }}/errors>
+    Order Allow,Deny
+    Allow from all
+</Directory>
+
+Alias /OxaErrorsManager {{ apache_default_vhost_path }}/errors
+
+ErrorDocument 401 /OxaErrorsManager/401.html
+ErrorDocument 403 /OxaErrorsManager/403.html
+ErrorDocument 404 /OxaErrorsManager/404.html
+ErrorDocument 500 /OxaErrorsManager/500.html
+ErrorDocument 503 /OxaErrorsManager/503.html

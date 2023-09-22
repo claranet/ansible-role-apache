@@ -4,3 +4,30 @@ ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
 ansible_distro_version: "{{ ansible_distribution_version | lower | replace('/', '_') }}"
 ansible_distro_release: "{{ ansible_distribution_release | lower }}"
 ansible_distro_major_version: "{{ ansible_distribution_major_version | lower | replace('/', '_') }}"
+
+_ansible_os_family: "{{ ansible_os_family | lower }}"
+
+# custom private vars
+_apache_packages_default:
+  - "{{ _apache_package_name }}"
+  - logrotate
+  - "{{ 'httpd-tools' if _ansible_os_family == 'redhat' else 'apache2-utils' }}"
+
+_apache_packages: "{{ (_apache_packages_default + apache_additionnal_packages) | unique }}"
+
+# config apache modules multi-process
+_apache_mpm_states:
+  - state: "{{ 'present' if apache_mpm == 'prefork' else 'absent' }}"
+    name: mpm_prefork
+  - state: "{{ 'present' if apache_mpm == 'worker' else 'absent' }}"
+    name: mpm_worker
+  - state: "{{ 'present' if apache_mpm == 'event' else 'absent' }}"
+    name: mpm_event
+_apache_mpm_configs: "{{ _apache_mpm_states | map(attribute='name') | list }}"
+
+# config apache modules
+_apache_mods: "{{ _apache_default_mods | combine(apache_mods) | dict2items(key_name='id', value_name='state') }}"
+
+# config ssl
+_apache_default_vhost_crt: "{{ apache_default_vhost_ssl_certs_path + '/default.crt' if apache_default_vhost_crt == '' else apache_default_vhost_crt }}"
+_apache_default_vhost_key: "{{ apache_default_vhost_ssl_certs_path + '/default.key' if apache_default_vhost_key == '' else apache_default_vhost_key }}"

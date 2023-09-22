@@ -1,0 +1,12 @@
+---
+- name: Restart apache
+  ansible.builtin.systemd:
+    name: "{{ _apache_package_name }}"
+    state: restarted
+  when: apache_service_state != 'stopped'
+
+- name: Reload apache
+  ansible.builtin.systemd:
+    name: "{{ _apache_package_name }}"
+    state: reloaded
+  when: apache_service_state != 'stopped'

@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+
+<IfModule mod_ssl.c>
+    SSLProtocol all {{ apache_ssl_protocol }}
+    SSLCipherSuite {{ apache_ssl_ciphersuite }}
+    SSLHonorCipherOrder {{ apache_ssl_honorcipherorder }}
+    SSLCompression {{ apache_ssl_compression }}
+    SSLUseStapling {{ apache_ssl_usestapling }}
+    SSLStaplingResponderTimeout {{ apache_ssl_staplingrespondertimeout }}
+    SSLStaplingReturnResponderErrors {{ apache_ssl_staplingreturnrespondererrors }}
+    SSLStaplingCache shmcb:${APACHE_RUN_DIR}/ocsp_scache({{ apache_ssl_staplingcache }})
+    SSLSessionCache shmcb:${APACHE_RUN_DIR}/ssl_scache({{ apache_ssl_sessioncache }})
+    SSLSessionCacheTimeout {{ apache_ssl_sessioncachetimeout }}
+</IfModule>

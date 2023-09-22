@@ -1,0 +1,54 @@
+---
+_apache_package_name: "apache2"
+_apache_cli_command: "apache2ctl"
+_apache_query_module: "a2query"
+_apache_mods_conf_directory: "/etc/{{ _apache_package_name }}/mods-available"
+_apache_default_mods:
+  core: present
+  watchdog: present
+  http: present
+  log_config: present
+  logio: present
+  version: present
+  unixd: present
+  access_compat: present
+  alias: present
+  auth_basic: present
+  authn_core: present
+  authn_file: present
+  authz_core: present
+  authz_host: present
+  authz_user: present
+  autoindex: present
+  deflate: present
+  dir: present
+  env: present
+  filter: present
+  mime: present
+  negotiation: present
+  reqtimeout: present
+  setenvif: present
+  status: present
+  expires: present
+  headers: present
+  rewrite: present
+  ssl: present
+  proxy: present
+  proxy_http: present
+  lbmethod_bytraffic: present
+
+_apache_user: "{{ apache_user if apache_user != '' else 'www-data' }}"
+_apache_group: "{{ apache_group if apache_group != '' else 'www-data' }}"
+
+_apache_vhosts_user: "{{ apache_vhosts_user if apache_vhosts_user != '' else _apache_user }}"
+_apache_vhosts_group: "{{ apache_vhosts_group if apache_vhosts_group != '' else _apache_group }}"
+
+_apache_default_conf:
+  charset: absent
+  default: present
+  localized-error-pages: absent
+  other-vhosts-access-log: absent
+  security: absent
+  serve-cgi-bin: absent
+_apache_conf: "{{ _apache_default_conf | combine(apache_conf) | dict2items(key_name='id', value_name='state') | sort(attribute='state') }}"
+_apache_vhost_conf_path: "/etc/{{ _apache_package_name }}/sites-available"

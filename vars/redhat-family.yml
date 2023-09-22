@@ -1,0 +1,112 @@
+---
+_apache_package_name: "httpd"
+_apache_cli_command: "apachectl"
+_apache_mods_conf_directory: "/etc/{{ _apache_package_name }}/conf.modules.d"
+_apache_mods_files_to_keep:
+  - mpm_event.conf
+  - mpm_prefork.conf
+  - mpm_worker.conf
+  - deflate.conf
+  - ssl.conf
+  - status.conf
+  - 00-mpm.conf
+  - remoteip.conf
+  - 01-cgi.conf
+  - 99-ansible.conf
+  - README
+_apache_default_mods:
+  access_compat: present
+  actions: present
+  alias: present
+  allowmethods: present
+  auth_basic: present
+  auth_digest: present
+  authn_anon: present
+  authn_core: present
+  authn_dbd: present
+  authn_dbm: present
+  authn_file: present
+  authn_socache: present
+  authz_core: present
+  authz_dbd: present
+  authz_dbm: present
+  authz_groupfile: present
+  authz_host: present
+  authz_owner: present
+  authz_user: present
+  autoindex: present
+  brotli: present
+  cache: present
+  cache_disk: present
+  cache_socache: present
+  data: present
+  dbd: present
+  deflate: present
+  dir: present
+  dumpio: present
+  echo: present
+  env: present
+  expires: present
+  ext_filter: present
+  filter: present
+  headers: present
+  include: present
+  info: present
+  log_config: present
+  logio: present
+  macro: present
+  mime_magic: present
+  mime: present
+  negotiation: present
+  remoteip: "{{ 'present' if apache_remoteip else 'absent' }}"
+  reqtimeout: present
+  request: present
+  rewrite: present
+  setenvif: present
+  slotmem_plain: present
+  slotmem_shm: present
+  socache_dbm: present
+  socache_memcache: present
+  socache_shmcb: present
+  status: present
+  substitute: present
+  suexec: present
+  unique_id: present
+  unixd: present
+  userdir: present
+  version: present
+  vhost_alias: present
+  watchdog: present
+  dav: present
+  dav_fs: present
+  dav_lock: present
+  lua: present
+  proxy: present
+  lbmethod_bybusyness: present
+  lbmethod_byrequests: present
+  lbmethod_bytraffic: present
+  lbmethod_heartbeat: present
+  proxy_ajp: present
+  proxy_balancer: present
+  proxy_connect: present
+  proxy_express: present
+  proxy_fcgi: present
+  proxy_fdpass: present
+  proxy_ftp: present
+  proxy_http: present
+  proxy_hcheck: present
+  proxy_scgi: present
+  proxy_uwsgi: present
+  proxy_wstunnel: present
+  systemd: present
+  http2: present
+  proxy_http2: present
+  ssl: "{{ 'present' if apache_default_vhost_ssl else 'absent' }}"
+
+_apache_user: "{{ apache_user if apache_user != '' else 'apache' }}"
+_apache_group: "{{ apache_group if apache_group != '' else 'apache' }}"
+
+_apache_vhosts_user: "{{ apache_vhosts_user if apache_vhosts_user != '' else _apache_user }}"
+_apache_vhosts_group: "{{ apache_vhosts_group if apache_vhosts_group != '' else _apache_group }}"
+
+_apache_vhost_conf_path: "/etc/{{ _apache_package_name }}/conf.d"

@@ -1,14 +1,5 @@
 #!/usr/bin/env python
 
-import os
-import stat
-import testinfra.utils.ansible_runner
 
-testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
-    os.environ["MOLECULE_INVENTORY_FILE"]
-).get_hosts("all")
-
-
-def test_shell(host):
-    command = host.run("sh --version")
-    assert command.rc == 0
+def test_http_listening(host):
+    assert host.socket("tcp://0.0.0.0:80").is_listening

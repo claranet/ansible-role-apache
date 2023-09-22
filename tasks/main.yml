@@ -1,5 +1,5 @@
 ---
-- name: Gather OS specific variables
+- name: "Gather OS specific variables"
   ansible.builtin.include_vars: "{{ loop_vars }}"
   loop: "{{ query('ansible.builtin.first_found', params) }}"
   vars:
@@ -16,3 +16,33 @@
       skip: true
   loop_control:
     loop_var: loop_vars
+
+- name: "Include tasks for install"
+  ansible.builtin.include_tasks: install.yml
+  tags: apache_install
+
+- name: "Include tasks for mpm"
+  ansible.builtin.include_tasks: mpm.yml
+  tags: apache_mpm
+
+- name: "Include tasks for mods"
+  ansible.builtin.include_tasks: mods.yml
+  tags: apache_mods
+
+- name: "Include tasks for conf"
+  ansible.builtin.include_tasks: conf.yml
+  tags: apache_conf
+
+- name: "Include tasks for default vhost"
+  ansible.builtin.include_tasks: default_vhost.yml
+  tags: apache_default_vhost
+
+- name: "Include tasks for vhosts"
+  ansible.builtin.include_tasks: vhosts.yml
+  vars:
+    _apache_vhost: "{{ apache_vhosts_default | combine(item) }}"
+  loop: "{{ apache_vhosts }}"
+  loop_control:
+    label: "Config virtual host {{ item.name }}"
+  tags: apache_vhosts
+  when: apache_vhosts | length > 0

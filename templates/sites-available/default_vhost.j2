@@ -1,0 +1,49 @@
+# {{ ansible_managed }}
+
+{% if apache_default_vhost_http %}
+<VirtualHost {{ apache_default_vhost_ip }}:{{ apache_default_vhost_http_port }}>
+# --- Parameters ------------------------------------------------------------
+    ServerAdmin {{ apache_mailadmin }}
+
+    DocumentRoot "{{ apache_default_vhost_path }}"
+
+# --- Logs ------------------------------------------------------------------
+    ErrorLog	{{ apache_logs_directory }}/default/error.log
+    CustomLog	{{ apache_logs_directory }}/default/access.log combined
+
+# --- Directories -----------------------------------------------------------
+    <Directory {{ apache_default_vhost_path }}>
+        Options -indexes
+        AllowOverride AuthConfig
+    </Directory>
+
+</VirtualHost>
+{% endif %}
+
+
+{% if apache_default_vhost_ssl %}
+<VirtualHost {{ apache_default_vhost_ip }}:{{ apache_default_vhost_ssl_port }}>
+# --- Parameters ------------------------------------------------------------
+    ServerAdmin {{ apache_mailadmin }}
+
+    DocumentRoot "{{ apache_default_vhost_path }}"
+
+# --- Logs ------------------------------------------------------------------
+    ErrorLog	{{ apache_logs_directory }}/default/error.log
+    CustomLog	{{ apache_logs_directory }}/default/access.log combined
+
+# --- Directories -----------------------------------------------------------
+    <Directory {{ apache_default_vhost_path }}>
+        Options none
+        AllowOverride AuthConfig
+    </Directory>
+
+# --- SSL -------------------------------------------------------------------
+    {% set _apache_default_vhost_certificate_is_not_path = _apache_default_vhost_crt | regex_search('^.*BEGIN CERTIFICATE.*', multiline=true) %}
+    {% set _apache_default_vhost_key_is_not_path = _apache_default_vhost_key | regex_search('^.*BEGIN( RSA)? PRIVATE KEY.*', multiline=true) %}
+
+    SSLEngine on
+    SSLCertificateFile {{ apache_default_vhost_ssl_certs_path + '/default.crt' if _apache_default_vhost_certificate_is_not_path else _apache_default_vhost_crt }}
+    SSLCertificateKeyFile {{ apache_default_vhost_ssl_certs_path + '/default.key' if _apache_default_vhost_key_is_not_path else _apache_default_vhost_key }}
+</VirtualHost>
+{% endif %}

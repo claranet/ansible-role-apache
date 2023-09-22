@@ -1,0 +1,37 @@
+---
+- name: "Install mods ssl package"
+  ansible.builtin.package:
+    name: "mod_ssl"
+    state: present
+  when: apache_default_vhost_ssl
+
+- name: "Remove default ssl conf"
+  ansible.builtin.file:
+    path: "{{ _apache_vhost_conf_path }}/{{ item }}"
+    state: absent
+  loop:
+    - 00-ssl.conf
+    - ssl.conf
+
+- name: "Search files containing useless modules configuration"
+  ansible.builtin.find:
+    paths: "{{ _apache_mods_conf_directory }}"
+    patterns: "*"
+    excludes: "{{ _apache_mods_files_to_keep }}"
+  register: _apache_found_files
+
+- name: "Delete useless files configuration"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ _apache_found_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: "Apply modules configuration"
+  ansible.builtin.template:
+    src: "mods-available/redhat/99-ansible.conf.j2"
+    dest: "{{ _apache_mods_conf_directory }}/99-ansible.conf"
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
+    mode: 0644

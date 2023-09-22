@@ -5,5 +5,7 @@
     apache_additionnal_packages:
       - wget
       - curl
+    apache_default_vhost_ssl: true
+
   roles:
     - role: claranet.apache

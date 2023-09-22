@@ -1,0 +1,48 @@
+---
+- name: "Adding global configuration files"
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/{{ _apache_package_name }}/{{ item }}"
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
+    mode: 0644
+  loop:
+    - "{{ _apache_package_name }}.conf"
+    - ports.conf
+  notify: Reload apache
+
+- name: "Adding custom configuration files"
+  ansible.builtin.template:
+    src: "conf-available/default.conf.j2"
+    dest: "/etc/{{ _apache_package_name }}/conf-available/default.conf"
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
+    mode: 0644
+  notify: Reload apache
+
+- name: "Adding envvars configuration file"
+  ansible.builtin.template:
+    src: "envvars.j2"
+    dest: "/etc/{{ _apache_package_name }}/envvars"
+    owner: "{{ _apache_user }}"
+    group: "{{ _apache_group }}"
+    mode: 0644
+  notify: Restart apache
+
+- name: "Enabling configuration files"
+  ansible.builtin.command: >
+    a2enconf {{ item.id }}
+  register: apache_enable_conf
+  when: item.state is not defined or item.state != 'absent'
+  changed_when: apache_enable_conf.rc != 0
+  with_items: "{{ _apache_conf }}"
+  notify: Reload apache
+
+- name: "Disabling configuration files"
+  ansible.builtin.command: >
+    a2disconf {{ item.id }}
+  register: apache_disable_conf
+  when: item.state is defined and item.state == 'absent'
+  changed_when: apache_disable_conf.rc != 0
+  with_items: "{{ _apache_conf }}"
+  notify: Reload apache

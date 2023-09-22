@@ -1,2 +1,131 @@
 ---
 # defaults file for role
+
+# packages
+apache_additionnal_packages: []
+
+# service
+apache_service_enabled: true
+apache_service_state: started
+
+# ports
+apache_ports: [80]
+apache_ssl_ports: [443]
+apache_gnutls_ports: [443]
+
+# mods
+apache_mods: {}
+
+apache_conf: {}
+
+# mpm
+apache_mpm: prefork
+
+apache_prefork_server_limit: 256
+apache_prefork_start_servers: 5
+apache_prefork_min_spare_servers: 5
+apache_prefork_max_spare_servers: 10
+apache_prefork_max_request_workers: 256
+apache_prefork_max_connections_per_child: 10000
+
+apache_worker_server_limit: 16
+apache_worker_start_servers: 3
+apache_worker_min_spare_threads: 75
+apache_worker_max_spare_threads: 250
+apache_worker_thread_limit: 64
+apache_worker_threads_per_child: 25
+apache_worker_max_clients: 400
+apache_worker_max_connections_per_child: 10000
+
+apache_event_server_limit: 16
+apache_event_start_servers: 3
+apache_event_min_spare_threads: 75
+apache_event_max_spare_threads: 250
+apache_event_thread_limit: 64
+apache_event_threads_per_child: 25
+apache_event_max_clients: 400
+apache_event_max_connections_per_child: 10000
+
+# remoteip
+apache_remoteip: false
+apache_remoteip_header: X-Forwarded-For
+apache_remoteip_proxies:
+  - 127.0.0.1
+
+# ssl
+apache_ssl_protocol: -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+apache_ssl_ciphersuite: >-
+  ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA
+apache_ssl_honorcipherorder: "on"
+apache_ssl_compression: "off"
+apache_ssl_usestapling: "on"
+apache_ssl_staplingcache: 128000
+apache_ssl_staplingrespondertimeout: 5
+apache_ssl_staplingreturnrespondererrors: "off"
+apache_ssl_sessioncache: 512000
+apache_ssl_sessioncachetimeout: 300
+
+# security
+apache_server_tokens: Prod
+apache_server_signature: "Off"
+apache_trace_enable: "off"
+
+# performance
+apache_hostname_lookups: "Off"
+apache_listen_backlog: 1024
+
+# keepalive & timeout
+apache_keepalive: "Off"
+apache_keepalive_timeout: 3
+apache_max_keepalive_requests: 100
+apache_timeout: 300
+
+# conf
+apache_umask: "022"
+
+apache_user: ""
+apache_group: ""
+
+apache_custom_options: {}
+apache_mailadmin: "noc@oxalide.com"
+apache_logs_directory: "/var/log/{{ _apache_package_name }}/vhosts"
+
+# logrotate
+apache_logrotate_permissions: "644"
+apache_logrotate_user: "root"
+apache_logrotate_group: "root"
+apache_logrotate_retention: "90"
+apache_logrotate_frequency: "daily"
+apache_logrotate_paths:
+  - "/var/log/{{ _apache_package_name }}/*.log"
+  - "/var/log/{{ _apache_package_name }}/vhosts/*/*.log"
+apache_logrotate_delay_compress: false
+
+# default vhost
+apache_default_vhost_template: "sites-available/default_vhost.j2"
+apache_default_vhost_crt: ""
+apache_default_vhost_key: ""
+apache_default_vhost_path: "/var/www/html"
+apache_default_vhost_http: true
+apache_default_vhost_ssl: false
+apache_default_vhost_ssl_certs_path: "/etc/{{ _apache_package_name }}/ssl"
+apache_default_vhost_ip: "*"
+apache_default_vhost_http_port: 80
+apache_default_vhost_ssl_port: 443
+
+# vhosts
+apache_vhosts_user: ""
+apache_vhosts_group: ""
+apache_vhosts_directory: "/srv/www"
+
+apache_vhosts: []
+
+# config for virtual hosts
+apache_vhosts_default:
+  docroot: current
+  create_path: true
+  create_docroot: false
+  ssl: false
+
+# Letsencrypt
+apache_certbot_webroot: "/var/www/letsencrypt"

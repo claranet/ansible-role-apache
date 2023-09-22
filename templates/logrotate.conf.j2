@@ -1,0 +1,25 @@
+# {{ ansible_managed }}
+
+{% set status_command = 'apache2 status' if _ansible_os_family == 'debian' else 'httpd -t -D status' %}
+{% set reload_command = 'apache2 reload' if _ansible_os_family == 'debian' else 'httpd -k graceful' %}
+
+{{ apache_logrotate_paths | join(' ') }} {
+        {{ apache_logrotate_frequency }}
+        missingok
+        rotate {{ apache_logrotate_retention }}
+        compress
+        {{ 'delaycompress' if apache_logrotate_delay_compress else '' }}
+        notifempty
+        create {{ apache_logrotate_permissions }} {{ apache_logrotate_user }} {{ apache_logrotate_group }}
+        sharedscripts
+        postrotate
+                if invoke-rc.d {{ status_command }} > /dev/null 2>&1; then \
+                    invoke-rc.d {{ reload_command }} > /dev/null 2>&1; \
+                fi;
+        endscript
+        prerotate
+                if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+                        run-parts /etc/logrotate.d/httpd-prerotate; \
+                fi; \
+        endscript
+}
