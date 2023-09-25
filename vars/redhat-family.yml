@@ -103,6 +103,12 @@ _apache_default_mods:
   proxy_http2: present
   ssl: "{{ 'present' if apache_default_vhost_ssl else 'absent' }}"
 
+# custom private vars
+_apache_packages_default:
+  - "{{ _apache_package_name }}"
+  - logrotate
+  - httpd-tools
+
 _apache_user: "{{ apache_user if apache_user != '' else 'apache' }}"
 _apache_group: "{{ apache_group if apache_group != '' else 'apache' }}"
 
