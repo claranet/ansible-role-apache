@@ -105,6 +105,7 @@ apache_logrotate_delay_compress: false
 apache_default_vhost_template: "sites-available/default_vhost.j2"
 apache_default_vhost_crt: ""
 apache_default_vhost_key: ""
+apache_default_vhost_chain: ""
 apache_default_vhost_path: "/var/www/html"
 apache_default_vhost_http: true
 apache_default_vhost_ssl: false
@@ -125,7 +126,8 @@ apache_vhosts_default:
   docroot: current
   create_path: true
   create_docroot: false
-  ssl: false
+  https_redir: false
+  https: false
 
 # Letsencrypt
 apache_certbot_webroot: "/var/www/letsencrypt"
