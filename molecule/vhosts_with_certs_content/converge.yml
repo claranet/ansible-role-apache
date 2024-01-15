@@ -9,10 +9,6 @@
       - curl
     apache_default_vhost_ssl: true
     apache_logrotate_delay_compress: true
-
-    apache_default_vhost_crt: "{{ lookup('ansible.builtin.file', 'files/ssl/default.crt') }}"
-    apache_default_vhost_key: "{{ lookup('ansible.builtin.file', 'files/ssl/default.key') }}"
-
     apache_vhosts:
       - name: molecule.example.com
         state: present
@@ -30,6 +26,7 @@
             - "MY2VAR myvalue"
       - name: molecule-fpm.example.com
         state: present
+        https_redir: true
         https: true
         ssl:
           crt: "{{ lookup('ansible.builtin.file', 'files/ssl/default.crt') }}"
@@ -40,7 +37,7 @@
         create_docroot: true
         docroot: current
         auth:
-          name: molecule-fpm
+          name: molecule
           file: molecule-fpm-file
           username: molecule-fpm-user
           password: molecule-fpm-pass
@@ -51,9 +48,29 @@
       - name: certbot.retail.example.com
         state: present
         http: true
+        https_redir: true
+        https: true
         letsencrypt: true
         create_docroot: true
         docroot: current
+      - name: isf.example.com
+        mailadmin: noc@oxalide.com
+        ip: '*'
+        port: 80
+        state: present
+        add_webroot: true
+        add_docroot: true
+        logformat: |
+          LogFormat "%a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" PID %{pid}P TimeTaken %D" combined
+          LogFormat "%a %l %u %t \"%r\" %>s %b" common
+        php_fpm: true
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
+        php_fpm_status: true
+        auth:
+          name: molecule
+          username: molecule-user
+          password: molecule-pass
+          file: isf-file
 
   pre_tasks:
     - name: "Create folders"
@@ -66,6 +83,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
+        - isf.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -79,6 +97,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
+        - isf.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -92,6 +111,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
+        - isf.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -119,14 +139,31 @@
       ansible.builtin.include_tasks: "php.yml"
       tags:
         - molecule-idempotence-notest
+      when: ansible_os_family == 'Debian'
+
+    - name: "Install php"               # noqa var-naming[no-role-prefix]
+      ansible.builtin.include_role:
+        name: geerlingguy.php
+      vars:
+        php_fpm_state: started
+        php_fpm_enabled_on_boot: true
+        php_fpm_pool:
+          - pool_name: www
+            pool_template: www.conf.j2
+            pool_listen: "{{ php_fpm_sock }}"
+            pool_listen_allowed_clients: "127.0.0.1"
+        __php_packages:
+          - php
+          - php-fpm
+      when: ansible_os_family == 'RedHat'
+      tags:
+        - molecule-idempotence-notest
 
     - name: "Generate certificate"
       ansible.builtin.include_tasks: "certificates.yml"
       vars:
         _apache_vhost: "{{ item }}"
       loop: "{{ apache_vhosts }}"
-      loop_control:
-        label: "Certificates for {{ item.name }}"
       tags:
         - molecule-idempotence-notest
 
