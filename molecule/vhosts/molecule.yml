@@ -1,7 +1,7 @@
 ---
 dependency:
   name: shell
-  command: pip install requests
+  command: pip install requests && ansible-galaxy role install geerlingguy.php
 
 driver:
   name: docker
@@ -22,7 +22,6 @@ platforms:
       - SYS_TIME
       - LINUX_IMMUTABLE
     command: "/lib/systemd/systemd"
-
 
 provisioner:
   name: ansible

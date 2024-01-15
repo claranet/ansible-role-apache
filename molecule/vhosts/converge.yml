@@ -26,20 +26,21 @@
             - "MY2VAR myvalue"
       - name: molecule-fpm.example.com
         state: present
+        https_redir: true
         https: true
         ssl:
           crt: "/etc/letsencrypt/live/molecule-fpm.example.com/cert.pem"
           key: "/etc/letsencrypt/live/molecule-fpm.example.com/privkey.pem"
         php_fpm: true
         php_fpm_status: true
-        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost"
         create_docroot: true
         docroot: current
-        auth:
-          name: molecule-fpm
-          file: molecule-fpm-file
-          username: molecule-fpm-user
-          password: molecule-fpm-pass
+        # auth:
+        #   name: molecule
+        #   file: molecule-fpm-file
+        #   username: molecule-fpm-user
+        #   password: molecule-fpm-pass
         custom_options:
           SetEnv:
             - "MYVAR myvalue"
@@ -50,6 +51,25 @@
         letsencrypt: true
         create_docroot: true
         docroot: current
+      - name: isf.example.com
+        mailadmin: noc@oxalide.com
+        ip: '*'
+        port: 80
+        state: present
+        add_webroot: true
+        add_docroot: true
+        logformat: |
+          LogFormat "%a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" PID %{pid}P TimeTaken %D" combined
+          LogFormat "%a %l %u %t \"%r\" %>s %b" common
+        php_fpm: true
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost"
+        php_fpm_status: true
+        auth:
+          name: molecule
+          username: molecule-user
+          password: molecule-pass
+          file: isf-file
+
   pre_tasks:
     - name: "Create folders"
       ansible.builtin.file:
@@ -61,6 +81,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
+        - isf.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -74,6 +95,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
+        - isf.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -87,6 +109,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
+        - isf.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -112,6 +135,25 @@
 
     - name: "Install php_fpm"
       ansible.builtin.include_tasks: "php.yml"
+      tags:
+        - molecule-idempotence-notest
+      when: ansible_os_family == 'Debian'
+
+    - name: "Install php"               # noqa var-naming[no-role-prefix]
+      ansible.builtin.include_role:
+        name: geerlingguy.php
+      vars:
+        php_fpm_state: started
+        php_fpm_enabled_on_boot: true
+        php_fpm_pool:
+          - pool_name: www
+            pool_template: www.conf.j2
+            pool_listen: "{{ php_fpm_sock }}"
+            pool_listen_allowed_clients: "127.0.0.1"
+        __php_packages:
+          - php
+          - php-fpm
+      when: ansible_os_family == 'RedHat'
       tags:
         - molecule-idempotence-notest
 

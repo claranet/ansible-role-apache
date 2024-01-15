@@ -12,7 +12,7 @@
     state: present
     extra_args: "--upgrade {{ '--break-system-packages' if ansible_distribution == 'Debian' and ansible_distribution_major_version == '12' else '' }}"
   vars:
-    ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
+    ansible_distro: '{{ ansible_distribution | lower | replace(''"'', '''') }}'
   when: ansible_distro != 'amazon'
 
 - name: "Install cryptography"
@@ -36,7 +36,7 @@
     group: "root"
     mode: 0754
 
-- name: "Generate an OpenSSL private key"
+- name: "Pretasks | Generate an OpenSSL private key"
   community.crypto.openssl_privatekey:
     path: "{{ _apache_vhost_key_path }}"
     size: "2048"
