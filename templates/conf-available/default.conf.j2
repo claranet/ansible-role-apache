@@ -46,8 +46,10 @@ LogFormat "%{Referer}i -> %U" referer
 LogFormat "%{User-agent}i" agent
 
 # Custom
-{% for key, val in apache_custom_options.items() %}
-{{ key }} {{ val }}
+{% for _apache_custom_options_name, _apache_custom_options_lines in apache_custom_options.items() %}
+    {%- for _apache_custom_options_line in _apache_custom_options_lines %}
+        {{ _apache_custom_options_name }} {{ _apache_custom_options_line }}
+    {% endfor %}
 {% endfor %}
 
 <Directory {{ apache_vhosts_directory }}>
