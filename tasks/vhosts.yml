@@ -1,9 +1,10 @@
 ---
-- name: "Include tasks for create certifates when user pass content instead path"
+- name: "Custom Vhosts | Include tasks for create certifates when user pass content instead path"
   ansible.builtin.include_tasks: create_certs_from_content.yml
   vars:
-    _apache_certificate: "{{ _apache_vhost.ssl.crt if _apache_vhost.ssl.crt is defined else '' }}"
-    _apache_key: "{{ _apache_vhost.ssl.key if _apache_vhost.ssl.key is defined else '' }}"
+    _apache_certificate: "{{ _apache_vhost.ssl.crt | default('') }}"
+    _apache_chain: ""
+    _apache_key: "{{ _apache_vhost.ssl.key | default('') }}"
     _apache_certificate_file_name: "{{ _apache_vhost.name }}"
     _apache_certificate_path: "{{ apache_default_vhost_ssl_certs_path }}"
   when:
@@ -14,8 +15,8 @@
   ansible.builtin.file:
     path: "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}"
     state: directory
-    owner: "{{ _apache_vhosts_user }}"
-    group: "{{ _apache_vhosts_group }}"
+    owner: "{{ _apache_vhost.directory_owner | default(_apache_vhosts_user) }}"
+    group: "{{ _apache_vhost.directory_group | default(_apache_vhosts_group) }}"
     mode: 0755
   when: _apache_vhost.create_path
 
@@ -36,12 +37,14 @@
     group: "{{ _apache_vhosts_group }}"
     mode: 0755
 
-- name: "Creating _apache_vhost for {{ _apache_vhost.name }}"
+- name: "Creating vhost for {{ _apache_vhost.name }}"
   ansible.builtin.template:
-    src: "sites-available/vhost.j2"
+    src: "{{ _apache_vhost.template | default('sites-available/vhost.j2') }}"
     dest: "{{ _apache_vhost_conf_path }}/{{ _apache_vhost.name }}.conf"
     mode: 0644
   notify: Reload apache
+  vars:
+    _apache_certificate_file_name: "{{ _apache_vhost.name }}"
 
 - name: "Creating auth file for {{ _apache_vhost.name }}"
   community.general.htpasswd:
@@ -54,7 +57,7 @@
   when: _apache_vhost.auth.file is defined
   notify: Reload apache
 
-- name: "Enabling _apache_vhost {{ _apache_vhost.name }}"
+- name: "Enabling vhost {{ _apache_vhost.name }}"
   ansible.builtin.file:
     src: "{{ _apache_vhost_conf_path }}/{{ _apache_vhost.name }}.conf"
     dest: "/etc/apache2/sites-enabled/{{ _apache_vhost.name }}.conf"

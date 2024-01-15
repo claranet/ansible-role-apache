@@ -1,6 +1,6 @@
 ---
 # vars file for role
-ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
+ansible_distro: '{{ ansible_distribution | lower | replace(''"'', '''') }}'
 ansible_distro_version: "{{ ansible_distribution_version | lower | replace('/', '_') }}"
 ansible_distro_release: "{{ ansible_distribution_release | lower }}"
 ansible_distro_major_version: "{{ ansible_distribution_major_version | lower | replace('/', '_') }}"
@@ -25,3 +25,4 @@ _apache_mods: "{{ _apache_default_mods | combine(apache_mods) | dict2items(key_n
 # config ssl
 _apache_default_vhost_crt: "{{ apache_default_vhost_ssl_certs_path + '/default.crt' if apache_default_vhost_crt == '' else apache_default_vhost_crt }}"
 _apache_default_vhost_key: "{{ apache_default_vhost_ssl_certs_path + '/default.key' if apache_default_vhost_key == '' else apache_default_vhost_key }}"
+_apache_default_vhost_chain: "{{ apache_default_vhost_chain }}"

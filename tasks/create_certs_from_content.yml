@@ -2,6 +2,7 @@
 - name: "Detect if certificates and keys is path or content"
   ansible.builtin.set_fact:
     _apache_certificate_is_not_path: "{{ _apache_certificate | regex_search('^.*BEGIN CERTIFICATE.*', multiline=true) }}"
+    _apache_chain_is_not_path: "{{ _apache_chain | regex_search('^.*BEGIN CERTIFICATE.*', multiline=true) }}"
     _apache_key_is_not_path: "{{ _apache_key | regex_search('^.*BEGIN( RSA)? PRIVATE KEY.*', multiline=true) }}"
 
 - name: "Create path to store certificates"
@@ -20,6 +21,15 @@
     group: "{{ _apache_vhosts_group }}"
     mode: 0700
   when: _apache_certificate_is_not_path
+
+- name: "Create chain's file for {{ _apache_certificate_file_name }}"
+  ansible.builtin.copy:
+    dest: "{{ apache_default_vhost_ssl_certs_path }}/chain-{{ _apache_certificate_file_name }}.crt"
+    content: "{{ _apache_chain }}"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
+    mode: 0700
+  when: _apache_chain_is_not_path
 
 - name: "Create key's file for {{ _apache_certificate_file_name }}"
   ansible.builtin.copy:
