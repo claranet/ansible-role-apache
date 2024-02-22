@@ -1,7 +1,7 @@
 ---
 dependency:
   name: shell
-  command: pip install requests && ansible-galaxy role install geerlingguy.php
+  command: pip install pytest-testinfra requests && ansible-galaxy role install geerlingguy.php && ansible-galaxy collection install community.crypto
 
 driver:
   name: docker
