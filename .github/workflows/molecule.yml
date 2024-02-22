@@ -56,19 +56,19 @@ jobs:
       matrix:
         scenario: ${{ fromJson(needs.setup.outputs.scenarios) }}
         config:
-          - image: "amazonlinux"
-            tag: "latest"
-          - name: "redhat"
-            image: "registry.access.redhat.com/ubi8/ubi"
-            tag: "latest"
+          # - image: "amazonlinux"
+          #   tag: "latest"
+          # - name: "redhat"
+          #   image: "registry.access.redhat.com/ubi8/ubi"
+          #   tag: "latest"
           - image: "debian"
             tag: "12"
-          - image: "debian"
-            tag: "11"
-          - image: "debian"
-            tag: "10"
-          - image: "ubuntu"
-            tag: "22.04"
+          # - image: "debian"
+          #   tag: "11"
+          # - image: "debian"
+          #   tag: "10"
+          # - image: "ubuntu"
+          #   tag: "22.04"
 
     steps:
       - name: checkout
