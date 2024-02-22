@@ -41,10 +41,9 @@ jobs:
         with:
           path: "${{ github.repository }}"
       - name: molecule
-        uses: robertdebock/molecule-action@4.0.9
+        uses: ansible/ansible-lint-action@main
         with:
-          command: lint
-          scenario: ${{ fromJson(needs.setup.outputs.scenarios)[0] }}
+          path: "."
 
   test:
     name: Scenario "${{ matrix.scenario }}" on ${{ matrix.config.image }}:${{ matrix.config.tag }}
