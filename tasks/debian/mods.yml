@@ -3,6 +3,7 @@
   community.general.apache2_module:
     state: "{{ item.state }}"
     name: "{{ item.id }}"
+    identifier: "{{ item.identifier | default(omit) }}"
     force: true
   loop: "{{ _apache_mods }}"
   notify: Reload apache
