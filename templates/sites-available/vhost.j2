@@ -85,7 +85,7 @@
     # --- Proxy -----------------------------------------------------------
    {% if _apache_vhost.proxy.url is defined %}
     {% set _apache_balancer_urls = _apache_vhost.proxy.url | join('_') %}
-    {% set _apache_balancer_name =  _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
+    {% set _apache_balancer_name = _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
     <Proxy balancer://{{ _apache_balancer_name }}>
         {% for url in _apache_vhost.proxy.url %}
           BalancerMember {{ url | urlsplit('scheme') }}://{{ url | urlsplit('netloc') }}
@@ -94,8 +94,8 @@
     </Proxy>
     ProxyRequests Off
     ProxyPreserveHost On
-    ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
-    ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+    ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+    ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
    {% endif %}
   {% endif %}
 
@@ -177,7 +177,6 @@
    {% endif %}
   {% endif %}
 
-
   {% if not _apache_vhost.letsencrypt | default(false) and _apache_vhost.https %}
     # --- SSL -------------------------------------------------------------------
     SSLEngine on
@@ -214,7 +213,7 @@
     # Proxy
     {% if _apache_vhost.proxy.url is defined %}
         {% set _apache_balancer_urls = _apache_vhost.proxy.url | join('_') %}
-        {% set _apache_balancer_name =  _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
+        {% set _apache_balancer_name = _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
         <Proxy balancer://{{ _apache_balancer_name }}>
         {% for url in _apache_vhost.proxy.url %}
             BalancerMember {{ url | urlsplit('scheme') }}://{{ url | urlsplit('netloc') }}
@@ -223,8 +222,8 @@
         </Proxy>
         ProxyRequests Off
         ProxyPreserveHost On
-        ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
-        ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+        ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+        ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
     {% endif %}
   {% endif %}
 
