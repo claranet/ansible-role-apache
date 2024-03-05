@@ -87,7 +87,7 @@ apache_user: ""
 apache_group: ""
 
 apache_custom_options: {}
-apache_mailadmin: "noc@oxalide.com"
+apache_mailadmin: "noc@claranet.com"
 apache_logs_directory: "/var/log/{{ _apache_package_name }}/vhosts"
 
 # logrotate
