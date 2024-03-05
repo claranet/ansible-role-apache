@@ -5,16 +5,12 @@ import requests
 
 
 def get_apache_package_name(host):
-    package_name = ""
     os_release = host.file("/etc/os-release")
     for os in ("centos", "fedora", "rhel", "amzn"):
         if os_release.contains(f'ID="{os}"'):
-            package_name = "httpd"
-            break
-        else:
-            package_name = "apache2"
+            return "httpd"
 
-    return package_name
+    return "apache2"
 
 
 def test_apache_logrotate_run(host):

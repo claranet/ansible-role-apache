@@ -29,7 +29,7 @@ def test_apache_mod_status(host):
 # def test_apache_vhost_auth_fpm(host):
 #     request = requests.get(
 #         url=f"http://{get_ip_address(host)}/var.php",
-#         headers={'Host': 'isf.example.com'},
+#         headers={'Host': 'claranet.example.com'},
 #         auth=HTTPBasicAuth('molecule-user', 'molecule-pass'),
 #         verify=False
 #     )
