@@ -161,6 +161,7 @@ N/A
   roles:
     - claranet.apache
 ```
+
 * virtual host: install and configure apache and add virtual host configuration
 ```yaml
 ---
@@ -203,10 +204,10 @@ N/A
             - "MYVAR myvalue"
             - "MY2VAR myvalue"
 
-      - name: mon.oxalide.org
+      - name: mon.claranet.org
         aliases:
-          - oxalide.org
-        mailadmin: noccy@oxalide.com
+          - claranet.org
+        mailadmin: noccy@claranet.com
         state: absent
         http: true
         create_docroot: true
