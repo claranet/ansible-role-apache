@@ -51,8 +51,8 @@
         letsencrypt: true
         create_docroot: true
         docroot: current
-      - name: isf.example.com
-        mailadmin: noc@oxalide.com
+      - name: claranet.example.com
+        mailadmin: noc@claranet.com
         ip: '*'
         port: 80
         state: present
@@ -81,7 +81,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
-        - isf.example.com
+        - claranet.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -95,7 +95,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
-        - isf.example.com
+        - claranet.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -109,7 +109,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
-        - isf.example.com
+        - claranet.example.com
       tags:
         - molecule-idempotence-notest
 

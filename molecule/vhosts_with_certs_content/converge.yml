@@ -2,7 +2,7 @@
 - name: Converge
   hosts: all
   vars:
-    ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
+    ansible_distro: '{{ ansible_distribution | lower | replace(''"'', '''') }}'
     php_fpm_sock: "{{ '/run/php/php-fpm.sock' if ansible_os_family == 'Debian' else '/run/php-fpm/www.sock' }}"
     apache_additionnal_packages:
       - wget
@@ -53,9 +53,9 @@
         letsencrypt: true
         create_docroot: true
         docroot: current
-      - name: isf.example.com
-        mailadmin: noc@oxalide.com
-        ip: '*'
+      - name: claranet.example.com
+        mailadmin: noc@claranet.com
+        ip: "*"
         port: 80
         state: present
         add_webroot: true
@@ -83,7 +83,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
-        - isf.example.com
+        - claranet.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -97,7 +97,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
-        - isf.example.com
+        - claranet.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -111,7 +111,7 @@
       loop:
         - molecule.example.com
         - molecule-fpm.example.com
-        - isf.example.com
+        - claranet.example.com
       tags:
         - molecule-idempotence-notest
 
@@ -121,7 +121,7 @@
         state: directory
         owner: "root"
         group: "root"
-        mode: '0755'
+        mode: "0755"
       tags:
         - molecule-idempotence-notest
 
@@ -131,7 +131,7 @@
         dest: /var/www/letsencrypt/.well-known/acme-challenge/
         owner: "root"
         group: "root"
-        mode: '0644'
+        mode: "0644"
       tags:
         - molecule-idempotence-notest
 
@@ -141,7 +141,7 @@
         - molecule-idempotence-notest
       when: ansible_os_family == 'Debian'
 
-    - name: "Install php"               # noqa var-naming[no-role-prefix]
+    - name: "Install php"  # noqa var-naming[no-role-prefix]
       ansible.builtin.include_role:
         name: geerlingguy.php
       vars:
