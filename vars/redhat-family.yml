@@ -101,7 +101,7 @@ _apache_default_mods:
   systemd: present
   http2: present
   proxy_http2: present
-  ssl: "{{ 'present' if apache_default_vhost_ssl else 'absent' }}"
+  ssl: present
 
 # custom private vars
 _apache_packages_default:

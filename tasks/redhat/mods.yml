@@ -1,9 +1,13 @@
 ---
+- name: "Set fact for check if ssl mod is present or absent"
+  ansible.builtin.set_fact:
+    _apache_check_ssl_is_present: _apache_mods | selectattr("id", "equalto", "ssl") | selectattr("state", "equalto", "present") | list | length > 0 | bool
+
 - name: "Install mods ssl package"
   ansible.builtin.package:
     name: "mod_ssl"
     state: present
-  when: apache_default_vhost_ssl
+  when: _apache_check_ssl_is_present
 
 - name: "Remove default ssl conf"
   ansible.builtin.file:
