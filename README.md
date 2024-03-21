@@ -25,7 +25,7 @@ ansible-galaxy install claranet.apache
 
 | Variable                                    | Default value                              | Description                                                                                           |
 | ------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| apache_additionnal_packages                 | []                                         | A list of additional packages to be installed                                                         |
+| apache_additional_packages                 | []                                         | A list of additional packages to be installed                                                         |
 | apache_service_enabled                      | true                                       | Whether the Apache service is enabled or not                                                          |
 | apache_service_state                        | started                                    | The state of the Apache service, whether started, stopped, or restarted                               |
 | apache_ports                                | [80]                                       | The ports on which HTTP requests are listened to                                                      |
@@ -69,23 +69,28 @@ ansible-galaxy install claranet.apache
 | apache_ssl_staplingreturnrespondererrors    | off                                        | SSL stapling return responders errors                                                                 |
 | apache_ssl_sessioncache                     | 512000                                     | SSL session cache                                                                                     |
 | apache_ssl_sessioncachetimeout              | 300                                        | SSL session cache timeout                                                                             |
+| apache_ssl_headers                          | []                                         | SSL headers Ex: ["X-SSL-CIPHER AES-256"]                                                              |
 | apache_server_tokens                        | Prod                                       | Server tokens                                                                                         |
 | apache_server_signature                     | Off                                        | Server signature                                                                                      |
 | apache_trace_enable                         | off                                        | Enable trace for service                                                                              |
 | apache_hostname_lookups                     | "Off"                                      | Hostname lookups for manage performance                                                               |
 | apache_listen_backlog                       | 1024                                       | Listen backlog                                                                                        |
-| apache_default_vhost_ssl                    | false                                      | Path to certificate for default virtual host                                                          |
-| apache_default_vhost_crt                    | ""                                         | Path to certificate for default virtual host                                                          |
-| apache_default_vhost_key                    | ""                                         | Path to certificate key for default virtual host                                                      |
+| apache_remove_default_vhost                 | false                                      | Remove default vhost config                                                                           |
+| apache_default_vhost_template               | sites-available/default_vhost.j2           | Path to default vhost template                                                                        |
+| apache_default_vhost_path                   | /var/www/html                              | docroot of default vhost                                                                              |
+| apache_default_vhost_http                   | true                                       | Enable http config for default vhosts                                                                 |
+| apache_default_vhost_ssl                    | false                                      | Enable ssl for default vhost                                                                          |
 | apache_default_vhost_ssl_certs_path         | "/etc/{{ _apache_package_name }}/ssl"      | Path to certificates for default virtual hosts. Used only when apache_default_vhost_crt and apache_default_vhost_key are empty |
+| apache_default_vhost_crt                    | ""                                         | Path to certificate for default virtual host                                                          |
+| apache_default_vhost_key                    | ""                                         | Path to key certificate for default virtual host                                                      |
+| apache_default_vhost_chain                  | ""                                         | Path to chain certificate for default virtual host                                                    |
 | apache_default_vhost_ip                     | "*"                                        | Listen address for default virtual host                                                               |
 | apache_default_vhost_http_port              | 80                                         | HTTP port for default virtual host                                                                    |
-| apache_default_vhost_ssl_http_port          | 443                                        | HTTPS port for default virtual host                                                                   |
+| apache_default_vhost_ssl_port               | 443                                        | HTTPS port for default virtual host                                                                   |
 | apache_vhosts_user                          | ""                                         | Default user owner for virtual hosts                                                                  |
 | apache_vhosts_group                         | ""                                         | Default group owner for virtual hosts                                                                 |
 | apache_vhosts_directory                     | "/srv/www"                                 | Directory for store virtual hosts files                                                               |
 | [apache_vhosts](#apache_vhosts)             | []                                         | Default user owner for default vhost                                                                  |
-| apache_vhosts_user                          | ""                                         | Default user owner for default vhost                                                                  |
 | apache_vhosts_default                       | [See here](/defaults/main.yml#L124)        | Common options to set by default to all vhosts                                                        |
 | apache_certbot_webroot                      | "/var/www/letsencrypt"                     | Path to certbot letsencrypt certificates                                                              |
 
