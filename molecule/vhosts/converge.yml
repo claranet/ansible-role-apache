@@ -35,11 +35,11 @@
         php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost"
         create_docroot: true
         docroot: current
-        # auth:
-        #   name: molecule
-        #   file: molecule-fpm-file
-        #   username: molecule-fpm-user
-        #   password: molecule-fpm-pass
+        auth:
+          name: molecule
+          file: molecule-fpm-file
+          username: molecule-fpm-user
+          password: molecule-fpm-pass
         custom_options:
           SetEnv:
             - "MYVAR myvalue"
@@ -68,6 +68,10 @@
           username: molecule-user
           password: molecule-pass
           file: isf-file
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
 
   pre_tasks:
     - name: "Create folders"

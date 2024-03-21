@@ -13,18 +13,17 @@ def test_apache_mod_status(host):
     assert request.status_code == 403 or request.status_code == 200
 
 
-# Works in virtual machine
-# def test_apache_vhost_ssl_auth_fpm(host):
-#     request = requests.get(
-#         url=f"https://{get_ip_address(host)}/var.php",
-#         headers={'Host': 'molecule-fpm.example.com'},
-#         auth=HTTPBasicAuth('molecule-fpm-user', 'molecule-fpm-pass'),
-#         verify=False
-#     )
+def test_apache_vhost_ssl_auth_fpm(host):
+    request = requests.get(
+        url=f"https://{get_ip_address(host)}/var.php",
+        headers={'Host': 'molecule-fpm.example.com'},
+        auth=HTTPBasicAuth('molecule-fpm-user', 'molecule-fpm-pass'),
+        verify=False
+    )
 
-#     assert "MYVAR: myvalue" in request.text
-#     assert "MY2VAR: myvalue" in request.text
-#     assert 200 == request.status_code
+    assert "MYVAR: myvalue" in request.text
+    assert "MY2VAR: myvalue" in request.text
+    assert 200 == request.status_code
 
 
 def test_apache_vhost_auth_fpm(host):
