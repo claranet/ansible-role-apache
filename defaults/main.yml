@@ -2,7 +2,7 @@
 # defaults file for role
 
 # packages
-apache_additionnal_packages: []
+apache_additional_packages: []
 
 # service
 apache_service_enabled: true
@@ -64,6 +64,7 @@ apache_ssl_staplingrespondertimeout: 5
 apache_ssl_staplingreturnrespondererrors: "off"
 apache_ssl_sessioncache: 512000
 apache_ssl_sessioncachetimeout: 300
+apache_ssl_headers: []
 
 # security
 apache_server_tokens: Prod
@@ -102,14 +103,15 @@ apache_logrotate_paths:
 apache_logrotate_delay_compress: false
 
 # default vhost
+apache_remove_default_vhost: false
 apache_default_vhost_template: "sites-available/default_vhost.j2"
-apache_default_vhost_crt: ""
-apache_default_vhost_key: ""
-apache_default_vhost_chain: ""
 apache_default_vhost_path: "/var/www/html"
 apache_default_vhost_http: true
 apache_default_vhost_ssl: false
 apache_default_vhost_ssl_certs_path: "/etc/{{ _apache_package_name }}/ssl"
+apache_default_vhost_crt: ""
+apache_default_vhost_key: ""
+apache_default_vhost_chain: ""
 apache_default_vhost_ip: "*"
 apache_default_vhost_http_port: 80
 apache_default_vhost_ssl_port: 443

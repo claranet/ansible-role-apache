@@ -11,4 +11,8 @@
     SSLStaplingCache shmcb:${APACHE_RUN_DIR}/ocsp_scache({{ apache_ssl_staplingcache }})
     SSLSessionCache shmcb:${APACHE_RUN_DIR}/ssl_scache({{ apache_ssl_sessioncache }})
     SSLSessionCacheTimeout {{ apache_ssl_sessioncachetimeout }}
+  {% for header in apache_ssl_headers %}
+    {{ header }}
+  {% endfor %}
+
 </IfModule>
