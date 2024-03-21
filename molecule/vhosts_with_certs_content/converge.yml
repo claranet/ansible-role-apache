@@ -135,12 +135,6 @@
       tags:
         - molecule-idempotence-notest
 
-    - name: "Install php_fpm"
-      ansible.builtin.include_tasks: "php.yml"
-      tags:
-        - molecule-idempotence-notest
-      when: ansible_os_family == 'Debian'
-
     - name: "Install php"   # noqa var-naming[no-role-prefix]
       ansible.builtin.include_role:
         name: geerlingguy.php
