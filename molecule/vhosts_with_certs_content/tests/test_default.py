@@ -29,9 +29,9 @@ def test_apache_mod_status(host):
 def test_apache_letsencrypt_challenge(host):
     request = requests.get(
         url=f"https://{get_ip_address(host)}/.well-known/acme-challenge/challenge.html",
-        headers={'Host': 'certbot.retail.example.com'},
-        auth=HTTPBasicAuth('molecule-fpm-user', 'molecule-fpm-pass'),
-        verify=False
+        headers={"Host": "certbot.retail.example.com"},
+        auth=HTTPBasicAuth("molecule-fpm-user", "molecule-fpm-pass"),
+        verify=False,
     )
 
     assert "This is a letsencrypt challenge" in request.text
