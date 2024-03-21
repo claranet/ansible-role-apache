@@ -2,7 +2,7 @@
 - name: Converge
   hosts: all
   vars:
-    apache_additionnal_packages:
+    apache_additional_packages:
       - wget
       - curl
     apache_default_vhost_ssl: true

@@ -4,7 +4,7 @@
   vars:
     ansible_distro: '{{ ansible_distribution | lower | replace(''"'', '''') }}'
     php_fpm_sock: "{{ '/run/php/php-fpm.sock' if ansible_os_family == 'Debian' else '/run/php-fpm/www.sock' }}"
-    apache_additionnal_packages:
+    apache_additional_packages:
       - wget
       - curl
     apache_default_vhost_ssl: true
@@ -141,7 +141,7 @@
         - molecule-idempotence-notest
       when: ansible_os_family == 'Debian'
 
-    - name: "Install php"  # noqa var-naming[no-role-prefix]
+    - name: "Install php"   # noqa var-naming[no-role-prefix]
       ansible.builtin.include_role:
         name: geerlingguy.php
       vars:

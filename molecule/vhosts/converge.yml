@@ -2,12 +2,11 @@
 - name: Converge
   hosts: all
   vars:
-    ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
+    ansible_distro: '{{ ansible_distribution | lower | replace(''"'', '''') }}'
     php_fpm_sock: "{{ '/run/php/php-fpm.sock' if ansible_os_family == 'Debian' else '/run/php-fpm/www.sock' }}"
-    apache_additionnal_packages:
+    apache_additional_packages:
       - wget
       - curl
-    apache_default_vhost_ssl: true
     apache_logrotate_delay_compress: true
     apache_vhosts:
       - name: molecule.example.com
@@ -53,7 +52,7 @@
         docroot: current
       - name: claranet.example.com
         mailadmin: noc@claranet.com
-        ip: '*'
+        ip: "*"
         port: 80
         state: present
         add_webroot: true
@@ -119,7 +118,7 @@
         state: directory
         owner: "root"
         group: "root"
-        mode: '0755'
+        mode: "0755"
       tags:
         - molecule-idempotence-notest
 
@@ -129,7 +128,7 @@
         dest: /var/www/letsencrypt/.well-known/acme-challenge/
         owner: "root"
         group: "root"
-        mode: '0644'
+        mode: "0644"
       tags:
         - molecule-idempotence-notest
 
@@ -139,7 +138,7 @@
         - molecule-idempotence-notest
       when: ansible_os_family == 'Debian'
 
-    - name: "Install php"               # noqa var-naming[no-role-prefix]
+    - name: "Install php"   # noqa var-naming[no-role-prefix]
       ansible.builtin.include_role:
         name: geerlingguy.php
       vars:
