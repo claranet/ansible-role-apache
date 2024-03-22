@@ -17,17 +17,17 @@ def test_apache_logrotate_run(host):
     package_name = get_apache_package_name(host)
     ip_address = host.interface("eth0").addresses[0]
     requests.get(
-        url=f"https://{ip_address}",
-        headers={"Host": "molecule.example.com"},
+        url=f"http://{ip_address}",
+        headers={"Host": "claranet.example.com"},
         verify=False,
     )
 
     command = host.run(f"logrotate -f /etc/logrotate.d/{package_name}")
     log_file_compressed = host.file(
-        f"/var/log/{package_name}/vhosts/molecule.example.com/access.log.1.gz"
+        f"/var/log/{package_name}/vhosts/claranet.example.com/access.log.1.gz"
     )
     log_file = host.file(
-        f"/var/log/{package_name}/vhosts/molecule.example.com/access.log.1"
+        f"/var/log/{package_name}/vhosts/claranet.example.com/access.log.1"
     )
 
     assert log_file.exists or log_file_compressed.exists
