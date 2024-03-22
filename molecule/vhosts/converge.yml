@@ -44,7 +44,7 @@
           SetEnv:
             - "MYVAR myvalue"
             - "MY2VAR myvalue"
-      - name: certbot.retail.example.com
+      - name: certbot.example.com
         state: present
         http: true
         letsencrypt: true
@@ -141,6 +141,10 @@
         name: geerlingguy.php
       vars:
         php_enable_php_fpm: true
+        php_packages:
+          - php
+          - php-fpm
+        php_enable_webserver: false
         php_fpm_listen: "{{ php_fpm_sock }}"
       tags:
         - molecule-idempotence-notest

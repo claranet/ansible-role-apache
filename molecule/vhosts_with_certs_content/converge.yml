@@ -45,7 +45,7 @@
           SetEnv:
             - "MYVAR myvalue"
             - "MY2VAR myvalue"
-      - name: certbot.retail.example.com
+      - name: certbot.example.com
         state: present
         http: true
         https_redir: true
@@ -71,7 +71,10 @@
           username: molecule-user
           password: molecule-pass
           file: isf-file
-
+        custom_options:
+          SetEnv:
+            - "MYVAR myvalue"
+            - "MY2VAR myvalue"
   pre_tasks:
     - name: "Create folders"
       ansible.builtin.file:
@@ -140,6 +143,10 @@
         name: geerlingguy.php
       vars:
         php_enable_php_fpm: true
+        php_packages:
+          - php
+          - php-fpm
+        php_enable_webserver: false
         php_fpm_listen: "{{ php_fpm_sock }}"
       tags:
         - molecule-idempotence-notest
