@@ -23,13 +23,15 @@ def test_apache_vhost_http_auth_fpm(host):
         verify=False,
     )
 
+    assert "MYVAR: myvalue" in request.text
+    assert "MY2VAR: myvalue" in request.text
     assert 200 == request.status_code
 
 
 def test_apache_letsencrypt_challenge(host):
     request = requests.get(
         url=f"https://{get_ip_address(host)}/.well-known/acme-challenge/challenge.html",
-        headers={"Host": "certbot.retail.example.com"},
+        headers={"Host": "certbot.example.com"},
         auth=HTTPBasicAuth("molecule-fpm-user", "molecule-fpm-pass"),
         verify=False,
     )
