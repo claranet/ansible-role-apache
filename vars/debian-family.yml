@@ -37,6 +37,13 @@ _apache_default_mods:
   proxy_http: present
   lbmethod_bytraffic: present
 
+# custom private vars
+_apache_packages_default:
+  - apt-utils
+  - "{{ _apache_package_name }}"
+  - logrotate
+  - apache2-utils
+
 _apache_user: "{{ apache_user if apache_user != '' else 'www-data' }}"
 _apache_group: "{{ apache_group if apache_group != '' else 'www-data' }}"
 

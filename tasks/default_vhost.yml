@@ -1,9 +1,10 @@
 ---
-- name: "Include tasks for create certifates when user pass content instead path"
+- name: "Default vhosts | Include tasks for create certifates when user pass content instead path"
   ansible.builtin.include_tasks: create_certs_from_content.yml
   vars:
     _apache_certificate: "{{ _apache_default_vhost_crt }}"
     _apache_key: "{{ _apache_default_vhost_key }}"
+    _apache_chain: "{{ _apache_default_vhost_chain }}"
     _apache_certificate_file_name: "default"
     _apache_certificate_path: "{{ apache_default_vhost_ssl_certs_path }}"
   when: apache_default_vhost_ssl

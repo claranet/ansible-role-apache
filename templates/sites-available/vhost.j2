@@ -1,43 +1,58 @@
 # {{ ansible_managed }}
 
-{% if _apache_vhost.http is defined %}
-<VirtualHost {{ _apache_vhost.ip | default(apache_default_vhost_ip) }}:{{ _apache_vhost.port | default(apache_default_vhost_http_port) }}>
-# --- Parameters ------------------------------------------------------------
+{% if (_apache_vhost.http is defined) or (_apache_vhost.https_redir) or (_apache_vhost.port is defined and _apache_vhost.port | string == "80") %}
+ <VirtualHost {{ _apache_vhost.ip | default(apache_default_vhost_ip) }}:{{ _apache_vhost.port | default(apache_default_vhost_http_port) }}>
+
+    # --- Parameters ------------------------------------------------------------
     ServerName {{ _apache_vhost.name }}
-{% for value in _apache_vhost.aliases|default([]) %}
+ {% for value in _apache_vhost.aliases | default([]) %}
     ServerAlias {{ value }}
-{% endfor %}
+ {% endfor %}
 
-{% if _apache_vhost.mailadmin is defined %}
+ {% if _apache_vhost.mailadmin is defined %}
     ServerAdmin {{ _apache_vhost.mailadmin }}
-{% else %}
+ {% else %}
     ServerAdmin {{ apache_mailadmin }}
-{% endif %}
-    DocumentRoot "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}"
+ {% endif %}
 
-# --- Logs ------------------------------------------------------------------
+ {% if _apache_vhost.https_redir %}
+    # --- Redirection -----------------------------------------------------------
+    RewriteEngine On
+    RewriteRule (.*) https://%{SERVER_NAME}$1 [R,L]
+  
+ {% else %}
+    # ---- Apply config if not https_redir --------------------------------------
+
+    DocumentRoot "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}"
+  
+  {% if _apache_vhost.logformat is defined %}
+    # --- Logs ------------------------------------------------------------------
+    {{ _apache_vhost.logformat }}
+  {% endif %}
+  
+    # --- Logs ------------------------------------------------------------------
     ErrorLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/error.log
     CustomLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/access.log combined
 
-# --- Directories -----------------------------------------------------------
+    # --- Directories -----------------------------------------------------------
     <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
         Options FollowSymLinks
         AllowOverride all
         Require all granted
     </Directory>
 
-{% if _apache_vhost.letsencrypt is defined %}
-# --- Directories for letsencrypt challenge ----------------------------------
+  {% if _apache_vhost.letsencrypt is defined %}
+    # --- Directories for letsencrypt challenge ----------------------------------
     Alias /.well-known/acme-challenge/ "{{ apache_certbot_webroot }}/.well-known/acme-challenge/"
     <Directory "{{ apache_certbot_webroot }}">
         AllowOverride None
         Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
         Require all granted
     </Directory>
-{% endif %}
+  {% endif %}
 
-{% if _apache_vhost.auth is defined %}
-# --- Auth ------------------------------------------------------------------
+  {% if _apache_vhost.auth is defined %}
+    # --- Auth ------------------------------------------------------------------
     <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
         AuthType Basic
         AuthBasicProvider file
@@ -45,146 +60,160 @@
         AuthName "{{ _apache_vhost.auth.name }}"
         Require valid-user
     </Directory>
-{% endif %}
+  {% endif %}
 
-{% if _apache_vhost.php_fpm is defined %}
-# --- PHP-FPM ---------------------------------------------------------------
+  {% if _apache_vhost.php_fpm is defined %}
+    # --- PHP-FPM ---------------------------------------------------------------
     <FilesMatch "\.php$">
         SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
     </FilesMatch>
 
-{% if _apache_vhost.php_fpm_status is defined %}
-    <FilesMatch "^ping|status$">
+    {% if _apache_vhost.php_fpm_status is defined %}
+     <FilesMatch "^ping|status$">
         Require all denied
         Require ip 127.0.0.1
         Require ip 10.1.71.0/24
         Require ip 10.254.0.0/16
         Require ip 10.255.0.0/16
         SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
-    </FilesMatch>
-{% endif %}
-{% endif %}
-
-
-{% if _apache_vhost.proxy is defined %}
-# Proxy
-    {% if _apache_vhost.proxy.url is defined %}
-        {% set _apache_balancer_urls = _apache_vhost.proxy.url | join('_') %}
-        {% set _apache_balancer_name =  _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
-        <Proxy balancer://{{ _apache_balancer_name }}>
-        {% for url in _apache_vhost.proxy.url %}
-            BalancerMember {{ url | urlsplit('scheme') }}://{{ url | urlsplit('netloc') }}
-        {% endfor %}
-            ProxySet {{ _apache_vhost.proxy.proxy_set | default('lbmethod=bytraffic') }}
-        </Proxy>
-        ProxyRequests Off
-        ProxyPreserveHost On
-        ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
-        ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+     </FilesMatch>
     {% endif %}
-{% endif %}
 
-{% if _apache_vhost.custom_options is defined %}
-# Custom
-{% for custom_options_name, custom_options_lines in _apache_vhost.custom_options.items() %}
-    {%- for value in custom_options_lines %}
-{{ custom_options_name }} {{ value }}
+  {% endif %}
+
+  {% if _apache_vhost.proxy is defined %}
+    # --- Proxy -----------------------------------------------------------
+   {% if _apache_vhost.proxy.url is defined %}
+    {% set _apache_balancer_urls = _apache_vhost.proxy.url | join('_') %}
+    {% set _apache_balancer_name = _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
+    <Proxy balancer://{{ _apache_balancer_name }}>
+        {% for url in _apache_vhost.proxy.url %}
+          BalancerMember {{ url | urlsplit('scheme') }}://{{ url | urlsplit('netloc') }}
+        {% endfor %}
+          ProxySet {{ _apache_vhost.proxy.proxy_set | default('lbmethod=bytraffic') }}
+    </Proxy>
+    ProxyRequests Off
+    ProxyPreserveHost On
+    ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+    ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+   {% endif %}
+  {% endif %}
+
+  {% if _apache_vhost.custom_options is defined %}
+    # Custom
+    {% for custom_options_name, custom_options_lines in _apache_vhost.custom_options.items() %}
+     {%- for value in custom_options_lines %}
+      {{ custom_options_name }} {{ value }}
+     {% endfor %}
     {% endfor %}
-{% endfor %}
+
+  {% endif %}
+
+  {% if _apache_vhost.extra_parameters is defined %}
+    {{ _apache_vhost.extra_parameters }}
+  {% endif %}
+
+ {% endif %}
+ </VirtualHost>
 {% endif %}
 
-</VirtualHost>
-{% endif %}
-
-{% if _apache_vhost.https | default(false) %}
-<VirtualHost {{ _apache_vhost.ip | default(apache_default_vhost_ip) }}:{{ _apache_vhost.port | default(apache_default_vhost_ssl_port) }}>
-# --- Parameters ------------------------------------------------------------
+{% if (_apache_vhost.https) or  ((_apache_vhost.port is defined ) and _apache_vhost.port | string == "443") %}
+ <VirtualHost {{ _apache_vhost.ip | default(apache_default_vhost_ip) }}:{{ _apache_vhost.port | default(apache_default_vhost_ssl_port) }}>
+    # --- Parameters ------------------------------------------------------------
     ServerName {{ _apache_vhost.name }}
-{% for value in _apache_vhost.aliases|default([]) %}
+ {% for value in _apache_vhost.aliases|default([]) %}
     ServerAlias {{ value }}
-{% endfor %}
+ {% endfor %}
 
-{% if _apache_vhost.mailadmin is defined %}
+ {% if _apache_vhost.mailadmin is defined %}
     ServerAdmin {{ _apache_vhost.mailadmin }}
-{% else %}
+ {% else %}
     ServerAdmin {{ apache_mailadmin }}
-{% endif %}
+ {% endif %}
+    
     DocumentRoot "{{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}"
 
-# --- Logs ------------------------------------------------------------------
+ {% if _apache_vhost.logformat is defined %}
+    # --- Logs ------------------------------------------------------------------
+    {{ _apache_vhost.logformat }}
+ {% endif %}
+    
     ErrorLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/error.log
-    CustomLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/access.log combined
+    CustomLog	{{ apache_logs_directory }}/{{ _apache_vhost.name }}/access.log {{ _apache_vhost.logformat_name | default("combined") }}
 
-# --- Directories -----------------------------------------------------------
+    # --- Directories -----------------------------------------------------------
     <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
         Options FollowSymLinks
         AllowOverride all
         Require all granted
+  {% if _apache_vhost.auth is defined %}
+        # --- Auth ------------------------------------------------------------------
+        AuthType Basic
+        AuthBasicProvider file
+        AuthUserFile /etc/{{ _apache_package_name }}/htpasswd/{{ _apache_vhost.auth.file }}
+        AuthName "{{ _apache_vhost.auth.name }}"
+        Require valid-user
+  {% endif %}
     </Directory>
 
-{% if _apache_vhost.letsencrypt is defined %}
-# --- Directories for letsencrypt challenge ----------------------------------
+  {% if _apache_vhost.letsencrypt is defined %}
+    # --- Directories for letsencrypt challenge ----------------------------------
     Alias /.well-known/acme-challenge/ "{{ apache_certbot_webroot }}/.well-known/acme-challenge/"
     <Directory "{{ apache_certbot_webroot }}">
         AllowOverride None
         Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
         Require all granted
     </Directory>
-{% endif %}
-
-# --- SSL -------------------------------------------------------------------
+  
+    # --- SSL -------------------------------------------------------------------
     SSLEngine on
-{% if _apache_vhost.letsencrypt is defined or _apache_vhost.https %}
-{% if _apache_vhost.letsencrypt_cert_name is defined %}
+
+   {% if _apache_vhost.letsencrypt_cert_name is defined %}
     SSLCertificateFile /etc/letsencrypt/live/{{ _apache_vhost.letsencrypt_cert_name }}/cert.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/{{ _apache_vhost.letsencrypt_cert_name }}/privkey.pem
-{% else %}
+   {% else %}
     SSLCertificateFile /etc/letsencrypt/live/{{ _apache_vhost.name }}/cert.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/{{ _apache_vhost.name }}/privkey.pem
-{% endif %}
-{% else %}
-    {# #}
+   {% endif %}
+  {% endif %}
+
+  {% if not _apache_vhost.letsencrypt | default(false) and _apache_vhost.https %}
+    # --- SSL -------------------------------------------------------------------
+    SSLEngine on
     {% set _apache_vhost_certificate_is_not_path = _apache_vhost.ssl.crt | regex_search('^.*BEGIN CERTIFICATE.*', multiline=true) %}
     {% set _apache_vhost_key_is_not_path = _apache_vhost.ssl.key | regex_search('^.*BEGIN( RSA)? PRIVATE KEY.*', multiline=true) %}
 
     SSLCertificateFile {{ apache_default_vhost_ssl_certs_path + '/' + _apache_certificate_file_name + '.crt' if _apache_vhost_certificate_is_not_path else _apache_vhost.ssl.crt }}
     SSLCertificateKeyFile {{ apache_default_vhost_ssl_certs_path + '/' + _apache_certificate_file_name + '.key' if _apache_vhost_key_is_not_path else _apache_vhost.ssl.key }}
-{% endif %}
+   {% if _apache_vhost.ssl.chain is defined %}
+        {% set _apache_vhost_chain_is_not_path = _apache_vhost.ssl.chain | regex_search('^.*BEGIN CERTIFICATE.*', multiline=true) %}
+    SSLCertificateChainFile {{ apache_default_vhost_ssl_certs_path + '/chain-' + _apache_certificate_file_name + '.crt' if _apache_vhost_chain_is_not_path else _apache_vhost.ssl.chain }}
+   {% endif %}
+  {% endif %}
 
-{% if _apache_vhost.auth is defined %}
-# --- Auth ------------------------------------------------------------------
-    <Directory {{ apache_vhosts_directory }}/{{ _apache_vhost.name }}/{{ _apache_vhost.docroot }}>
-        AuthType Basic
-        AuthBasicProvider file
-        AuthUserFile /etc/{{ _apache_package_name }}/htpasswd/{{ _apache_vhost.auth.file }}
-        AuthName "{{ _apache_vhost.auth.name }}"
-        Require valid-user
-    </Directory>
-{% endif %}
-
-{% if _apache_vhost.php_fpm is defined %}
-# --- PHP-FPM ---------------------------------------------------------------
+  {% if _apache_vhost.php_fpm is defined %}
+    # --- PHP-FPM ---------------------------------------------------------------
     <FilesMatch "\.php$">
         SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
     </FilesMatch>
 
-{% if _apache_vhost.php_fpm_status is defined %}
-    <FilesMatch "^ping|status$">
+   {% if _apache_vhost.php_fpm_status is defined %}
+     <FilesMatch "^ping|status$">
         Require all denied
         Require ip 127.0.0.1
         Require ip 10.1.71.0/24
         Require ip 10.254.0.0/16
         Require ip 10.255.0.0/16
         SetHandler "{{ _apache_vhost.php_fpm_host | default('proxy:fcgi://127.0.0.1:9000') }}"
-    </FilesMatch>
-{% endif %}
-{% endif %}
+     </FilesMatch>
+   {% endif %}
+  {% endif %}
 
-# Proxy
-{% if _apache_vhost.proxy is defined %}
+  {% if _apache_vhost.proxy is defined %}
+    # Proxy
     {% if _apache_vhost.proxy.url is defined %}
         {% set _apache_balancer_urls = _apache_vhost.proxy.url | join('_') %}
-        {% set _apache_balancer_name =  _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
+        {% set _apache_balancer_name = _apache_balancer_urls.replace('http://','').replace(':','').replace('/','') %}
         <Proxy balancer://{{ _apache_balancer_name }}>
         {% for url in _apache_vhost.proxy.url %}
             BalancerMember {{ url | urlsplit('scheme') }}://{{ url | urlsplit('netloc') }}
@@ -193,18 +222,24 @@
         </Proxy>
         ProxyRequests Off
         ProxyPreserveHost On
-        ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
-        ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{  _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+        ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
+        ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
     {% endif %}
-{% endif %}
+  {% endif %}
 
-{% if _apache_vhost.custom_options is defined %}
-# Custom
-{% for custom_options_name, custom_options_lines in _apache_vhost.custom_options.items() %}
-    {%- for value in custom_options_lines %}
-{{ custom_options_name }} {{ value }}
+  {% if _apache_vhost.custom_options is defined %}
+    # Custom
+    {% for custom_options_name, custom_options_lines in _apache_vhost.custom_options.items() %}
+     {%- for value in custom_options_lines %}
+      {{ custom_options_name }} {{ value }}
+     {% endfor %}
     {% endfor %}
-{% endfor %}
-{% endif %}
-</VirtualHost>
+  {% endif %}
+
+  {% if _apache_vhost.extra_parameters is defined %}
+    # Extra Parameters
+    {{ _apache_vhost.extra_parameters }}
+  {% endif %}
+
+ </VirtualHost>
 {% endif %}

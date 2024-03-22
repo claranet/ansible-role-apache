@@ -25,7 +25,7 @@ ListenBacklog {{ apache_listen_backlog }}
 
 # Timeout & KeepAlive
 KeepAlive {{ apache_keepalive }}
-KeepAliveTimeout {{ apache_keepalive_timeout}}
+KeepAliveTimeout {{ apache_keepalive_timeout }}
 MaxKeepAliveRequests {{ apache_max_keepalive_requests }}
 Timeout {{ apache_timeout }}
 
@@ -46,8 +46,10 @@ LogFormat "%{Referer}i -> %U" referer
 LogFormat "%{User-agent}i" agent
 
 # Custom
-{% for key, val in apache_custom_options.items() %}
-{{ key }} {{ val }}
+{% for _apache_custom_options_name, _apache_custom_options_lines in apache_custom_options.items() %}
+    {%- for _apache_custom_options_line in _apache_custom_options_lines %}
+        {{ _apache_custom_options_name }} {{ _apache_custom_options_line }}
+    {% endfor %}
 {% endfor %}
 
 <Directory {{ apache_vhosts_directory }}>
@@ -62,10 +64,10 @@ LogFormat "%{User-agent}i" agent
     Allow from all
 </Directory>
 
-Alias /OxaErrorsManager {{ apache_default_vhost_path }}/errors
+Alias /ErrorsManager {{ apache_default_vhost_path }}/errors
 
-ErrorDocument 401 /OxaErrorsManager/401.html
-ErrorDocument 403 /OxaErrorsManager/403.html
-ErrorDocument 404 /OxaErrorsManager/404.html
-ErrorDocument 500 /OxaErrorsManager/500.html
-ErrorDocument 503 /OxaErrorsManager/503.html
+ErrorDocument 401 /ErrorsManager/401.html
+ErrorDocument 403 /ErrorsManager/403.html
+ErrorDocument 404 /ErrorsManager/404.html
+ErrorDocument 500 /ErrorsManager/500.html
+ErrorDocument 503 /ErrorsManager/503.html

@@ -36,6 +36,16 @@
 - name: "Include tasks for default vhost"
   ansible.builtin.include_tasks: default_vhost.yml
   tags: apache_default_vhost
+  when: not apache_remove_default_vhost
+
+- name: "Remove defaults vhost config files"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ _apache_vhost_conf_path }}/000-default.conf"
+    - "/etc/{{ _apache_package_name }}/sites-enabled/000-default.conf"
+  when: apache_remove_default_vhost
 
 - name: "Include tasks for vhosts"
   ansible.builtin.include_tasks: vhosts.yml

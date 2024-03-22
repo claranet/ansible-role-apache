@@ -8,22 +8,11 @@ def get_ip_address(host):
 
 
 def test_apache_mod_status(host):
-    request = requests.head(url=f"http://{get_ip_address(host)}/server-status")
-
-    assert request.status_code == 403 or request.status_code == 200
-
-
-def test_apache_vhost_ssl_auth_fpm(host):
-    request = requests.get(
-        url=f"https://{get_ip_address(host)}/var.php",
-        headers={"Host": "molecule-fpm.example.com"},
-        auth=HTTPBasicAuth("molecule-fpm-user", "molecule-fpm-pass"),
-        verify=False,
+    request = requests.head(
+        url=f"https://{get_ip_address(host)}/server-status", verify=False
     )
 
-    assert "MYVAR: myvalue" in request.text
-    assert "MY2VAR: myvalue" in request.text
-    assert 200 == request.status_code
+    assert request.status_code == 403 or request.status_code == 200
 
 
 def test_apache_vhost_auth_fpm(host):

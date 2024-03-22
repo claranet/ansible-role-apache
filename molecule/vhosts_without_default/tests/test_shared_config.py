@@ -5,28 +5,30 @@ import requests
 
 
 def get_apache_package_name(host):
-    package_name = ""
     os_release = host.file("/etc/os-release")
     for os in ("centos", "fedora", "rhel", "amzn"):
         if os_release.contains(f'ID="{os}"'):
-            package_name = "httpd"
-            break
-        else:
-            package_name = "apache2"
+            return "httpd"
 
-    return package_name
+    return "apache2"
 
 
 def test_apache_logrotate_run(host):
     package_name = get_apache_package_name(host)
     ip_address = host.interface("eth0").addresses[0]
-    requests.get(url=f"http://{ip_address}")
+    requests.get(
+        url=f"http://{ip_address}",
+        headers={"Host": "claranet.example.com"},
+        verify=False,
+    )
 
     command = host.run(f"logrotate -f /etc/logrotate.d/{package_name}")
     log_file_compressed = host.file(
-        f"/var/log/{package_name}/vhosts/default/access.log.1.gz"
+        f"/var/log/{package_name}/vhosts/claranet.example.com/access.log.1.gz"
     )
-    log_file = host.file(f"/var/log/{package_name}/vhosts/default/access.log.1")
+    log_file = host.file(
+        f"/var/log/{package_name}/vhosts/claranet.example.com/access.log.1"
+    )
 
     assert log_file.exists or log_file_compressed.exists
     assert command.rc == 0
@@ -44,6 +46,6 @@ def test_apache_mpm_prefork(host):
 
 def test_hardening(host):
     ip_address = host.interface("eth0").addresses[0]
-    request = requests.get(url=f"http://{ip_address}")
+    request = requests.get(url=f"https://{ip_address}", verify=False)
 
     assert request.headers["Server"] == "Apache"

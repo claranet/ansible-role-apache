@@ -53,7 +53,6 @@
 #   /etc/init.d/apache2 or apache2ctl. Calling /usr/bin/apache2 directly will not
 #   work with the default configuration.
 
-
 # Global configuration
 #
 
@@ -112,7 +111,6 @@ MaxKeepAliveRequests 100
 #
 KeepAliveTimeout 5
 
-
 # These need to be set in /etc/apache2/envvars
 User ${APACHE_RUN_USER}
 Group ${APACHE_RUN_GROUP}
@@ -151,7 +149,6 @@ IncludeOptional mods-enabled/*.conf
 # Include list of ports to listen on
 Include ports.conf
 
-
 # Sets the default security model of the Apache2 HTTPD server. It does
 # not allow access to the root filesystem outside of /usr/share and /var/www.
 # The former is used by web applications packaged in Debian,
@@ -181,9 +178,6 @@ Include ports.conf
 #	Require all granted
 #</Directory>
 
-
-
-
 # AccessFileName: The name of the file to look for in each directory
 # for additional configuration directives.  See also the AllowOverride
 # directive.
@@ -197,7 +191,6 @@ AccessFileName .htaccess
 <FilesMatch "^\.ht">
 	Require all denied
 </FilesMatch>
-
 
 #
 # The following directives define some format nicknames for use with

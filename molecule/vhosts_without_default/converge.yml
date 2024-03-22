@@ -7,6 +7,7 @@
     apache_additional_packages:
       - wget
       - curl
+    apache_remove_default_vhost: true
     apache_logrotate_delay_compress: true
     apache_vhosts:
       - name: molecule.example.com
@@ -28,11 +29,11 @@
         https_redir: true
         https: true
         ssl:
-          crt: "/etc/letsencrypt/live/molecule-fpm.example.com/cert.pem"
-          key: "/etc/letsencrypt/live/molecule-fpm.example.com/privkey.pem"
+          crt: "{{ lookup('ansible.builtin.file', 'files/ssl/default.crt') }}"
+          key: "{{ lookup('ansible.builtin.file', 'files/ssl/default.key') }}"
         php_fpm: true
         php_fpm_status: true
-        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost"
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
         create_docroot: true
         docroot: current
         auth:
@@ -47,6 +48,8 @@
       - name: certbot.example.com
         state: present
         http: true
+        https_redir: true
+        https: true
         letsencrypt: true
         create_docroot: true
         docroot: current
@@ -61,7 +64,7 @@
           LogFormat "%a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" PID %{pid}P TimeTaken %D" combined
           LogFormat "%a %l %u %t \"%r\" %>s %b" common
         php_fpm: true
-        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost"
+        php_fpm_host: "proxy:unix:{{php_fpm_sock}}|fcgi://localhost/"
         php_fpm_status: true
         auth:
           name: molecule
@@ -136,7 +139,7 @@
       tags:
         - molecule-idempotence-notest
 
-    - name: "Install php"   # noqa var-naming[no-role-prefix]
+    - name: "Install php" # noqa var-naming[no-role-prefix]
       ansible.builtin.include_role:
         name: geerlingguy.php
       vars:

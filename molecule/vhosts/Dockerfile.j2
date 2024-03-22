@@ -14,7 +14,7 @@ ENV {{ var }} {{ value }}
 {% endfor %}
 {% endif %}
 
-RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get install -y python3 sudo bash ca-certificates iproute2 systemd wget && apt-get clean; \
+RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get install -y libc6 python3 sudo bash ca-certificates iproute2 systemd wget && apt-get clean; \
     elif [ $(command -v yum) ]; then yum install -y python3 sudo bash iproute systemd initscripts wget; \
     elif [ $(command -v zypper) ]; then zypper refresh && zypper install -y python sudo bash python-xml iproute2 wget && zypper clean -a; \
     elif [ $(command -v apk) ]; then apk update && apk add --no-cache python sudo bash ca-certificates wget; \
