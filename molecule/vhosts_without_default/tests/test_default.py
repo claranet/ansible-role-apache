@@ -15,10 +15,10 @@ def test_apache_mod_status(host):
     assert request.status_code == 403 or request.status_code == 200
 
 
-def test_apache_vhost_http_auth_fpm(host):
+def test_apache_vhost_auth_fpm(host):
     request = requests.get(
         url=f"http://{get_ip_address(host)}/var.php",
-        headers={"Host": "molecule.example.com"},
+        headers={"Host": "claranet.example.com"},
         auth=HTTPBasicAuth("molecule-user", "molecule-pass"),
         verify=False,
     )
