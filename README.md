@@ -93,6 +93,11 @@ ansible-galaxy install claranet.apache
 | [apache_vhosts](#apache_vhosts)             | []                                         | Default user owner for default vhost                                                                  |
 | apache_vhosts_default                       | [See here](/defaults/main.yml#L124)        | Common options to set by default to all vhosts                                                        |
 | apache_certbot_webroot                      | "/var/www/letsencrypt"                     | Path to certbot letsencrypt certificates                                                              |
+| apache_default_maintenance_whitelist        | [127.0.0.0/8]                              | Ip ranges which are going to pass by maintenance                                                      |
+| apache_default_maintenance_template         | "default_maintenance.html.j2"              | Default maintenance template                                                                          |
+| apache_systemd_base_path                    | "/etc/systemd/system"                      | Base path where is located systemd service files                                                      |
+| apache_manage_systemd_override              | false                                      | Override apache systemd service file                                                                  |
+| apache_systemd_unit_template                | ""                                         | Unit file template to j2 format                                                                       |
 
 
 ## Role Variable Attributes
@@ -139,6 +144,8 @@ ansible-galaxy install claranet.apache
 | docroot             | string   | 'current'                      | The location of the virtual host's root directory.                                                                            |
 | auth                | dict     |                                | Setup authentication, Define the username, password, and authentication file for the virtual host by example, {name: "test", username: "test", password: "test, file: "test-file"}         |
 | ssl                 | dict     |                                | Define the paths to the SSL certificate files. By ex: {crt: "/etc/ssl/default", key: "/etc/ssl/key", 'chain': "/etc/ssl/chain"}. Only crt and key are required. Values can be path or cert content directly                      |
+| maintenance         | dict     |                                | Active maintenance snippet. By ex: {enable: true, whitelist: [172.16.0.0/16], template: {managed: true, src: "path/to/template"}}. When managed in template is true, src is not mandatory.                       |
+
 &nbsp;
 
 
