@@ -1,12 +1,15 @@
 ---
-- name: "Creating errors logs directories"
+- name: "Creating errors logs and maintenance directories"
   ansible.builtin.file:
-    dest: "{{ apache_default_vhost_path }}/errors"
+    dest: "{{ item }}"
     state: directory
     force: true
     owner: "{{ _apache_vhosts_user }}"
     group: "{{ _apache_vhosts_group }}"
     mode: 0755
+  loop:
+    - "{{ apache_default_vhost_path }}/errors"
+    - "{{ apache_vhosts_directory }}/maintenance"
 
 - name: "Adding errors HTML files"
   ansible.builtin.copy:

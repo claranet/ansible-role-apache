@@ -133,3 +133,13 @@ apache_vhosts_default:
 
 # Letsencrypt
 apache_certbot_webroot: "/var/www/letsencrypt"
+
+# Downtime
+apache_default_maintenance_whitelist:
+  - 127.0.0.0/8
+apache_default_maintenance_template: "default_maintenance.html.j2"
+
+# Systemd service override
+apache_systemd_base_path: "/etc/systemd/system"
+apache_manage_systemd_override: false
+apache_systemd_unit_template: ""

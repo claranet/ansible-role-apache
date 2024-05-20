@@ -99,6 +99,44 @@
    {% endif %}
   {% endif %}
 
+  {% if _apache_vhost.maintenance.enable is defined and _apache_vhost.maintenance.enable %}
+    # --- Maintenance -----------------------------------------------------------
+    {% if _apache_vhost.maintenance.template.managed is defined and _apache_vhost.maintenance.template.managed %}
+    Alias "/maintenance/index.html" "{{ apache_vhosts_directory }}/maintenance/{{ _apache_vhost.name }}.html"
+    <Location "/maintenance/index.html">
+      Require all granted
+    </Location>
+    {% endif %}
+
+    <IfModule mod_rewrite.c>
+      RewriteEngine On
+      # Disable maintenance for those ips
+    {% for ip in _apache_vhost.maintenance.whitelist | default(apache_default_maintenance_whitelist) %}
+      RewriteCond expr "! -R '{{ ip }}'"
+    {% endfor %}
+
+      # Make sure the /maintenance/index.html page exists.
+      RewriteCond %{DOCUMENT_ROOT}/maintenance/index.html -f
+
+      # Check if maintenance.enable exist
+      RewriteCond %{DOCUMENT_ROOT}/maintenance.enable -f
+
+      # Disable Rewrite for maintenance page and associated media
+      RewriteCond %{REQUEST_URI} !^/maintenance/
+
+      # Redirect all traffic to maintenance page
+      RewriteRule ^.*$ /maintenance/index.html [R=503,L]
+      ErrorDocument 503 /maintenance/index.html
+    </IfModule>
+    <IfModule mod_expires.c>
+      ExpiresActive On
+      ExpiresDefault "access plus 10 minutes"
+    </IfModule>
+    <IfModule mod_headers.c>
+      Header Set Cache-Control "no-cache, private, max-age=0, no-store"
+    </IfModule>
+  {% endif %}
+
   {% if _apache_vhost.custom_options is defined %}
     # Custom
     {% for custom_options_name, custom_options_lines in _apache_vhost.custom_options.items() %}
@@ -225,6 +263,44 @@
         ProxyPass {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
         ProxyPassReverse {{ _apache_vhost.proxy.path | default("/") }} "balancer://{{ _apache_balancer_name }}{{ _apache_vhost.proxy.url[0] | urlsplit('path') }}"
     {% endif %}
+  {% endif %}
+
+  {% if _apache_vhost.maintenance.enable is defined and _apache_vhost.maintenance.enable %}
+    # --- Maintenance -----------------------------------------------------------
+    {% if _apache_vhost.maintenance.template.managed is defined and _apache_vhost.maintenance.template.managed %}
+    Alias "/maintenance/index.html" "{{ apache_vhosts_directory }}/maintenance/{{ _apache_vhost.name }}.html"
+    <Location "/maintenance/index.html">
+      Require all granted
+    </Location>
+    {% endif %}
+
+    <IfModule mod_rewrite.c>
+      RewriteEngine On
+      # Disable maintenance for those ips
+    {% for ip in _apache_vhost.maintenance.whitelist | default(apache_default_maintenance_whitelist) %}
+      RewriteCond expr "! -R '{{ ip }}'"
+    {% endfor %}
+
+      # Make sure the /maintenance/index.html page exists.
+      RewriteCond %{DOCUMENT_ROOT}/maintenance/index.html -f
+
+      # Check if maintenance.enable exist
+      RewriteCond %{DOCUMENT_ROOT}/maintenance.enable -f
+
+      # Disable Rewrite for maintenance page and associated media
+      RewriteCond %{REQUEST_URI} !^/maintenance/
+
+      # Redirect all traffic to maintenance page
+      RewriteRule ^.*$ /maintenance/index.html [R=503,L]
+      ErrorDocument 503 /maintenance/index.html
+    </IfModule>
+    <IfModule mod_expires.c>
+      ExpiresActive On
+      ExpiresDefault "access plus 10 minutes"
+    </IfModule>
+    <IfModule mod_headers.c>
+      Header Set Cache-Control "no-cache, private, max-age=0, no-store"
+    </IfModule>
   {% endif %}
 
   {% if _apache_vhost.custom_options is defined %}

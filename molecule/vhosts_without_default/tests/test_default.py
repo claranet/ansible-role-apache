@@ -28,6 +28,17 @@ def test_apache_vhost_auth_fpm(host):
     assert 200 == request.status_code
 
 
+def test_apache_setup_maintenance(host):
+    request = requests.get(
+        url=f"http://{get_ip_address(host)}/maintenance/index.html",
+        headers={"Host": "molecule.example.com"},
+        auth=HTTPBasicAuth("molecule-user", "molecule-pass"),
+        verify=False,
+    )
+
+    assert 200 == request.status_code
+
+
 def test_apache_letsencrypt_challenge(host):
     request = requests.get(
         url=f"https://{get_ip_address(host)}/.well-known/acme-challenge/challenge.html",

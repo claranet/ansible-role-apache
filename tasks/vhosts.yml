@@ -57,6 +57,17 @@
   when: _apache_vhost.auth.file is defined
   notify: Reload apache
 
+- name: "Add maintenance page"
+  ansible.builtin.template:
+    src: "{{ _apache_vhost.maintenance.template.src | default(apache_default_maintenance_template) }}"
+    dest: "{{ apache_vhosts_directory }}/maintenance/{{ _apache_vhost.name }}.html"
+    owner: "{{ _apache_vhosts_user }}"
+    group: "{{ _apache_vhosts_group }}"
+    mode: 0640
+  when:
+    - _apache_vhost.maintenance.enable is defined and _apache_vhost.maintenance.enable
+    - _apache_vhost.maintenance.template.managed is defined and _apache_vhost.maintenance.template.managed
+
 - name: "Enabling vhost {{ _apache_vhost.name }}"
   ansible.builtin.file:
     src: "{{ _apache_vhost_conf_path }}/{{ _apache_vhost.name }}.conf"
