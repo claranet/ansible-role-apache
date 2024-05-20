@@ -10,3 +10,8 @@
     name: "{{ _apache_package_name }}"
     state: reloaded
   when: apache_service_state != 'stopped'
+
+- name: Reload apache daemon
+  ansible.builtin.systemd:
+    name: "{{ _apache_package_name }}"
+    daemon_reload: true
