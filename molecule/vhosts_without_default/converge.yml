@@ -24,6 +24,12 @@
           SetEnv:
             - "MYVAR myvalue"
             - "MY2VAR myvalue"
+        maintenance:
+          enable: true
+          whitelist:
+            - 172.16.0.0/24
+          template:
+            managed: true
       - name: molecule-fpm.example.com
         state: present
         https_redir: true
@@ -139,7 +145,7 @@
       tags:
         - molecule-idempotence-notest
 
-    - name: "Install php" # noqa var-naming[no-role-prefix]
+    - name: "Install php"  # noqa var-naming[no-role-prefix]
       ansible.builtin.include_role:
         name: geerlingguy.php
       vars:
