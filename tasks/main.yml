@@ -57,15 +57,25 @@
   tags: apache_vhosts
   when: apache_vhosts | length > 0
 
-- name: Create custom apache2 systemd service
-  ansible.builtin.template:
-    src: "{{ apache_systemd_unit_template }}"
-    dest: "{{ apache_systemd_base_path }}/{{ _apache_package_name }}.service"
-    owner: root
-    group: root
-    mode: 0644
-    force: true
-  notify:
-    - Reload apache daemon
-    - Restart apache
+- name: Override apache systemd service
   when: apache_manage_systemd_override
+  block:
+    - name: Create systemd drop-in directory
+      ansible.builtin.file:
+        path: "{{ apache_systemd_base_path }}/{{ _apache_package_name }}.d"
+        state: directory
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Create custom systemd unit file
+      ansible.builtin.template:
+        src: "{{ apache_systemd_unit_template }}"
+        dest: "{{ apache_systemd_base_path }}/{{ _apache_package_name }}.d/override.conf"
+        owner: root
+        group: root
+        mode: 0644
+        force: true
+      notify:
+        - Reload apache daemon
+        - Restart apache
