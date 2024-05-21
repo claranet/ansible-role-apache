@@ -1,57 +1,68 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <title>Website maintenance</title>
-      <style>
-         body {
-            font-family: "Helvetica Neue", sans-serif;
-            font-size: 16px;
-            line-height: 1.5;
-            background-color: #ffffff;
-            color: #333333;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-         }
-         .container {
-            width: 80%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 30px 20px;
-         }
-         .logo {
-            max-width: 200px;
-            margin: 0 auto;
-            margin-bottom: 30px;
-         }
-         h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-         }
-         p {
-            font-size: 18px;
-            margin-bottom: 30px;
-         }
-         .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #ffffff;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: all 0.3s;
-         }
-         .button:hover {
-            background-color: #0056b3;
-         }
-      </style>
-   </head>
-   <body>
-      <div class="container">
-         <img class="logo" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png" alt="Google Logo">
-         <h1>Website maintenance</h1>
-         <p>We apologize for the inconvenience, but we're performing some maintenance at the moment.</p>
-         <a class="button" href="#">Refresh</a>
-      </div>
-   </body>
+
+<head>
+   <title>Website maintenance</title>
+   <style>
+      body {
+         font-family: "Helvetica Neue", sans-serif;
+         font-size: 16px;
+         line-height: 1.5;
+         background-color: #ffffff;
+         color: #333333;
+         text-align: center;
+         margin: 0;
+         padding: 0;
+      }
+
+      .container {
+         width: 80%;
+         max-width: 600px;
+         margin: 0 auto;
+         padding: 30px 20px;
+      }
+
+      .logo {
+         max-width: 200px;
+         margin: 0 auto;
+         margin-bottom: 30px;
+      }
+
+      h1 {
+         font-size: 32px;
+         margin-bottom: 10px;
+      }
+
+      p {
+         font-size: 18px;
+         margin-bottom: 30px;
+      }
+
+      .button {
+         display: inline-block;
+         padding: 10px 20px;
+         background-color: #007bff;
+         color: #ffffff;
+         border-radius: 5px;
+         text-decoration: none;
+         transition: all 0.3s;
+         border: none;
+      }
+
+      .button:hover {
+         background-color: #0056b3;
+      }
+   </style>
+</head>
+
+<body>
+   <div class="container">
+      <img class="logo" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png"
+         alt="Google Logo">
+      <h1>Website maintenance</h1>
+      <p>We apologize for the inconvenience, but we're performing some maintenance at the moment.</p>
+      <button onClick="window.location.href=window.location.href" class="button">Refresh</button>
+   </div>
+</body>
+
 </html>
