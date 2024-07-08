@@ -2,6 +2,16 @@
 - name: Converge
   hosts: all
   vars:
+    php_versions:
+      Debian:
+        "10": "7.3"
+        "11": "7.4"
+        "12": "8.2"
+      Ubuntu:
+        "18": "7.2"
+        "20": "7.4"
+        "22": "8.1"
+        "24": "8.3"
     ansible_distro: '{{ ansible_distribution | lower | replace(''"'', '''') }}'
     php_fpm_sock: "{{ '/run/php/php-fpm.sock' if ansible_os_family == 'Debian' else '/run/php-fpm/www.sock' }}"
     apache_additional_packages:
@@ -146,7 +156,7 @@
         php_packages:
           - php
           - php-fpm
-        php_default_version_debian: "{{  '8.3' if (ansible_distribution == 'Ubuntu' and ansible_distribution_version | float >= 24.04) else omit }}"
+        php_default_version_debian: "{{ php_versions[ansible_distribution][ansible_distribution_major_version] if ansible_os_family == 'Debian' else omit }}"
         php_enable_webserver: false
         php_fpm_listen: "{{ php_fpm_sock }}"
       tags:

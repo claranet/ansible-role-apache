@@ -18,7 +18,7 @@
     extra_args: "--upgrade {{ '--break-system-packages' if _apache_pip_break_system_packages_allowed else '' }}"
   vars:
     ansible_distro: '{{ ansible_distribution | lower | replace(''"'', '''') }}'
-  when: ansible_distro != 'amazon' and (ansible_distribution == 'Ubuntu' and ansible_distribution_version | float < 24.04)      # not upgrade pip on ubuntu 24 and later
+  when: ansible_distro != 'amazon' and (ansible_distribution != 'Ubuntu' and ansible_distribution_version | float < 24.04)      # not upgrade pip on ubuntu 24 and later
 
 - name: "Install cryptography"
   ansible.builtin.pip:
