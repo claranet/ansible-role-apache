@@ -146,6 +146,7 @@
         php_packages:
           - php
           - php-fpm
+        php_default_version_debian: "{{  '8.3' if (ansible_distribution == 'Ubuntu' and ansible_distribution_version | float >= 24.04) else omit }}"
         php_enable_webserver: false
         php_fpm_listen: "{{ php_fpm_sock }}"
       tags:

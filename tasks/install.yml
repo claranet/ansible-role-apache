@@ -17,21 +17,25 @@
       - python3-setuptools
     state: present
 
+- name: "Set fact to determine if break system packages or not"
+  ansible.builtin.set_fact:
+    _apache_pip_break_system_packages_allowed: "{{ true if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 12) or (ansible_distribution == 'Ubuntu' and ansible_distribution_version | float >= 24.04) else false }}"
+
 - name: "Upgrade pip"
   ansible.builtin.pip:
     name: "pip"
     state: present
-    extra_args: "--upgrade {{ '--break-system-packages' if ansible_distribution == 'Debian' and ansible_distribution_major_version == '12' else '' }}"
+    extra_args: "--upgrade {{ '--break-system-packages' if _apache_pip_break_system_packages_allowed else '' }}"
   vars:
     _ansible_distro: "{{ ansible_distribution | lower | replace('\"', '') }}"
-  when: _ansible_distro != 'amazon'
+  when: _ansible_distro != 'amazon' and (ansible_distribution == 'Ubuntu' and ansible_distribution_version | float < 24.04)
 
 - name: "Install cryptography"
   ansible.builtin.pip:
     name:
       - passlib
       - cryptography
-    extra_args: "{{ '--break-system-packages' if ansible_distribution == 'Debian' and ansible_distribution_major_version == '12' else '' }}"
+    extra_args: "{{ '--break-system-packages' if _apache_pip_break_system_packages_allowed else '' }}"
     state: present
 
 - name: "Checking service state of {{ _apache_package_name }}"
