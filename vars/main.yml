@@ -29,3 +29,6 @@ _apache_default_vhost_chain: "{{ apache_default_vhost_chain }}"
 
 # maintenance
 _apache_vhost_maintenance_path: "{{ apache_vhosts_directory }}/maintenance"
+
+# pip install
+_apache_pip_break_system_packages_allowed: "{{ true if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 12) or (ansible_distribution == 'Ubuntu' and ansible_distribution_version | float >= 24.04) else false }}"
