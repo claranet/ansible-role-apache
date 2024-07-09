@@ -9,7 +9,7 @@
 
 - name: "Set fact to determine if break system packages or not"
   ansible.builtin.set_fact:
-    _apache_pip_break_system_packages_allowed: "{{ true if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 12) or (ansible_distribution == 'Ubuntu' and ansible_distribution_version | float >= 24.04) else false }}"
+    _apache_pip_break_system_packages_allowed: "{{ (ansible_distro == 'debian' and ansible_distro_major_version is version('12', '>=')) or (ansible_distro == 'ubuntu' and ansible_distro_major_version is version('24', '>=')) }}"
 
 - name: "Upgrade pip"
   ansible.builtin.pip:
