@@ -3,8 +3,11 @@
 <IfModule remoteip_module>
     RemoteIPHeader {{ apache_remoteip_header }}
 
-    RemoteIPInternalProxy{% for internal_proxy in apache_remoteip_internal_proxies %} {{ internal_proxy }}{% endfor %}
-    {% if apache_remoteip_trusted_proxies | length > 0 %}
-    RemoteIPTrustedProxy{% for trusted_proxy in apache_remoteip_trusted_proxies %} {{ trusted_proxy }}{% endfor %}
-    {% endif %}
-</IfModule>
+{% for internal_proxy in apache_remoteip_internal_proxies %}
+    RemoteIPInternalProxy {{ internal_proxy }}
+{% endfor %}
+{% if apache_remoteip_trusted_proxies | length > 0 %}
+{% for trusted_proxy in apache_remoteip_trusted_proxies %}
+    RemoteIPTrustedProxy {{ trusted_proxy }}
+{% endfor %}
+{% endif %}
