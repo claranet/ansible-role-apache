@@ -56,7 +56,8 @@ ansible-galaxy install claranet.apache
 | apache_event_threads_per_child              | 25                                         | The number of threads Apache will create for each child process (Event MPM)                           |
 | apache_event_max_clients                    | 400                                        | The maximum number of simultaneous requests that can be handled by a child process (Event MPM)        |
 | apache_event_max_connections_per_child      | 10000                                      | The maximum number of connections a child process can handle before it is terminated (Event MPM)      |
-| apache_remoteip                             | false                                      | Whether remote IP address information should be updated from the X-Forwarded-For header               |
+| apache_logrotate_retention                  | 365                                        | The maximum number of logs file to archive
+| apache_remoteip                             | true                                       | Whether remote IP address information should be updated from the X-Forwarded-For header               |
 | apache_remoteip_header                      | X-Forwarded-For                            | The name of the header containing the remote IP address                                               |
 | apache_remoteip_proxies                     | [127.0.0.1]                                | A list of trusted proxy servers                                                                       |
 | apache_ssl_protocol                         | -SSLv2 -SSLv3 -TLSv1 -TLSv1.1              | A list of SSL protocols that should be disabled                                                       |

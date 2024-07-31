@@ -47,7 +47,7 @@ apache_event_max_clients: 400
 apache_event_max_connections_per_child: 10000
 
 # remoteip
-apache_remoteip: false
+apache_remoteip: true
 apache_remoteip_header: X-Forwarded-For
 apache_remoteip_proxies:
   - 127.0.0.1
@@ -95,7 +95,7 @@ apache_logs_directory: "/var/log/{{ _apache_package_name }}/vhosts"
 apache_logrotate_permissions: "644"
 apache_logrotate_user: "root"
 apache_logrotate_group: "root"
-apache_logrotate_retention: "90"
+apache_logrotate_retention: "365"
 apache_logrotate_frequency: "daily"
 apache_logrotate_paths:
   - "/var/log/{{ _apache_package_name }}/*.log"
