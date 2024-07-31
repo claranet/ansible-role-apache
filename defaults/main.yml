@@ -49,8 +49,9 @@ apache_event_max_connections_per_child: 10000
 # remoteip
 apache_remoteip: true
 apache_remoteip_header: X-Forwarded-For
-apache_remoteip_proxies:
+apache_remoteip_internal_proxies:
   - 127.0.0.1
+apache_remoteip_trusted_proxies: []
 
 # ssl
 apache_ssl_protocol: -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
