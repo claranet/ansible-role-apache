@@ -5,10 +5,6 @@
   register: _apache_result_mpm_query
   changed_when: _apache_result_mpm_query.rc != 0
 
-- name: "Set current MPM"
-  ansible.builtin.set_fact:
-    _apache_current_mpm: "{{ _apache_result_mpm_query.stdout_lines | select('search', '^Server MPM:') | first | regex_replace('^Server MPM:\\s+(\\S+)$', '\\1') }}"
-
 - name: "Adding MPM configuration file"
   ansible.builtin.template:
     src: "mods-available/{{ item }}.conf.j2"
